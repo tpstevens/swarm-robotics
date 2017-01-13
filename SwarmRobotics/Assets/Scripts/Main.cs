@@ -10,6 +10,7 @@ public class Main : MonoBehaviour
 	public Camera overheadCamera;
 
 	private Configuration currentConfig;
+	private GameObject[] robots;
 
 	private void Start()
 	{
@@ -36,6 +37,7 @@ public class Main : MonoBehaviour
 		}
 		else
 		{
+			// Create environment header object
 			if (EnvironmentObjects == null)
 			{
 				EnvironmentObjects = GameObject.Find("Environment");
@@ -52,6 +54,7 @@ public class Main : MonoBehaviour
 				}
 			}
 
+			// Create ground
 			if (Ground == null)
 			{
 				Ground = GameObject.Find("Ground");
@@ -67,9 +70,35 @@ public class Main : MonoBehaviour
 				}
 			}
 
+			// Position and scale ground according to configuration
 			Ground.transform.localScale = new Vector3(groundLength, 1.0f, groundLength);
 			Ground.transform.position = Vector3.zero;
 			Ground.transform.SetParent(EnvironmentObjects.transform);
+
+			// Add barriers around the ground, assuming it's rectangular
+			GameObject positiveX = GameObject.CreatePrimitive(PrimitiveType.Cube);
+			positiveX.name = "Positive X";
+			positiveX.transform.localScale = new Vector3(0.1f, 0.25f, config.GroundLength + 0.2f);
+			positiveX.transform.position = new Vector3(config.GroundLength / 2.0f + 0.05f, 0.125f, 0.0f);
+			positiveX.transform.parent = EnvironmentObjects.transform;
+
+			GameObject negativeX = GameObject.CreatePrimitive(PrimitiveType.Cube);
+			negativeX.name = "Negative X";
+			negativeX.transform.localScale = new Vector3(0.1f, 0.25f, config.GroundLength + 0.2f);
+			negativeX.transform.position = new Vector3(config.GroundLength / -2.0f - 0.05f, 0.125f, 0.0f);
+			negativeX.transform.parent = EnvironmentObjects.transform;
+
+			GameObject positiveZ = GameObject.CreatePrimitive(PrimitiveType.Cube);
+			positiveZ.name = "Positive Z";
+			positiveZ.transform.localScale = new Vector3(config.GroundLength + 0.2f, 0.25f, 0.1f);
+			positiveZ.transform.position = new Vector3(0.0f, 0.125f, config.GroundLength / 2.0f + 0.05f);
+			positiveZ.transform.parent = EnvironmentObjects.transform;
+
+			GameObject negativeZ = GameObject.CreatePrimitive(PrimitiveType.Cube);
+			negativeZ.name = "Negative Z";
+			negativeZ.transform.localScale = new Vector3(config.GroundLength + 0.2f, 0.25f, 0.1f);
+			negativeZ.transform.position = new Vector3(0.0f, 0.125f, config.GroundLength / -2.0f - 0.05f);
+			negativeZ.transform.parent = EnvironmentObjects.transform;
 		}
 
 		return result;
@@ -95,7 +124,9 @@ public class Main : MonoBehaviour
 
 	private bool placeRobots(Configuration config)
 	{
-		return true;
+		bool result = true;
+
+		return result;
 	}
 
 	private void processUserInput()
