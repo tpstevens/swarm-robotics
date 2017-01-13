@@ -7,6 +7,7 @@ public class Main : MonoBehaviour
 {
 	public GameObject EnvironmentObjects;
 	public GameObject Ground;
+	public Camera overheadCamera;
 
 	private Configuration currentConfig;
 
@@ -77,12 +78,16 @@ public class Main : MonoBehaviour
 	private bool initialize(string configFile)
 	{
 		bool result = true;
-		Configuration config = new Configuration(configFile);
+		currentConfig = new Configuration(configFile);
 
-		if (!generateEnvironment(config) || !placeRobots(config))
+		if (!generateEnvironment(currentConfig) || !placeRobots(currentConfig))
 		{
 			result = false;
 			Log.a(LogTag.MAIN, "Failed to initialize scene using " + configFile);
+		}
+		else
+		{
+			repositionCameras(currentConfig);
 		}
 
 		return result;
@@ -107,6 +112,22 @@ public class Main : MonoBehaviour
 		{
 			Time.timeScale = (Time.timeScale != 0.0f) ? 0f : 1f;
 			Log.d(LogTag.MAIN, "Timescale set to " + Time.timeScale);
+		}
+	}
+
+	private void repositionCameras(Configuration config)
+	{
+		if (overheadCamera == null)
+		{
+			Log.e(LogTag.MAIN, "Reference to overhead camera is NULL");
+		}
+		else
+		{
+			overheadCamera.transform.position = new Vector3(config.GroundLength,
+			                                                0.8f * config.GroundLength, 
+															- 1.0f * config.GroundLength);
+			overheadCamera.orthographic = true;
+			overheadCamera.orthographicSize = config.GroundLength * 0.42f;
 		}
 	}
 }
