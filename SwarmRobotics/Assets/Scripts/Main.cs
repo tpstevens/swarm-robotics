@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 using Utilities;
 
@@ -11,6 +12,8 @@ public class Main : MonoBehaviour
 
 	private void Start()
 	{
+		Log.w(LogTag.MAIN, "Loading scene " + SceneManager.GetActiveScene().name);
+
 		Args args = new Args();	// reads args from file, creates default if necessary
 		initialize(args.configFileName);
 		Time.timeScale = 0.0f;

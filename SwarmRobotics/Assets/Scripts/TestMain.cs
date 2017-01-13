@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 using Utilities;
 
@@ -12,6 +13,8 @@ public class TestMain : MonoBehaviour
 
 	private void Start()
 	{
+		Log.w(LogTag.MAIN, "Loading scene " + SceneManager.GetActiveScene().name);
+
 		updateCameraState();
 	}
 
