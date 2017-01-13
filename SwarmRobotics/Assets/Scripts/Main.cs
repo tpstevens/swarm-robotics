@@ -1,16 +1,19 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
+using Robotics;
 using Utilities;
 
 public class Main : MonoBehaviour
 {
+	public Camera overheadCamera;
 	public GameObject EnvironmentObjects;
 	public GameObject Ground;
-	public Camera overheadCamera;
+	public GameObject RobotObjects;
+	public GameObject RobotPrefab;
 
 	private Configuration currentConfig;
-	private GameObject[] robots;
+	private Robot[] robots;
 
 	private void Start()
 	{
@@ -24,6 +27,7 @@ public class Main : MonoBehaviour
 	private void Update()
 	{
 		processUserInput();
+		updateSim();
 	}
 
 	private bool generateEnvironment(Configuration config)
@@ -124,7 +128,47 @@ public class Main : MonoBehaviour
 
 	private bool placeRobots(Configuration config)
 	{
+		// TODO: read number, placement shape, and location from config
+
 		bool result = true;
+
+		Random.InitState(System.DateTime.Now.Millisecond);
+		robots = new Robot[17];
+
+		// Create environment header object
+		if (RobotObjects == null)
+		{
+			RobotObjects = GameObject.Find("Robots");
+			if (RobotObjects != null)
+			{
+				Log.d(LogTag.MAIN, "Located Robots header object in scene");
+			}
+			else
+			{
+				Log.d(LogTag.MAIN, "Created Robots header object");
+				RobotObjects = new GameObject("Robots");
+				RobotObjects.transform.position = Vector3.zero;
+				RobotObjects.transform.rotation = new Quaternion(0f, 0f, 0f, 0f);
+			}
+		}
+
+		for (int i = 0; i < 9; ++i)
+		{
+			Vector3 position = new Vector3(-8 + 2 * i, RobotPrefab.transform.position.y, -8 + 2 * i);
+			robots[i] = new Robot(i, Instantiate(RobotPrefab), position, 40.0f * i);
+		}
+
+		for (int i = 9; i < 13; ++i)
+		{
+			Vector3 position = new Vector3(8 - 2 * (i - 9), RobotPrefab.transform.position.y, -8 + 2 * (i - 9));
+			robots[i] = new Robot(i, Instantiate(RobotPrefab), position, 40.0f * i);
+		}
+
+		for (int i = 13; i < 17; ++i)
+		{
+			Vector3 position = new Vector3(8 - 2 * (i - 8), RobotPrefab.transform.position.y, -8 + 2 * (i - 8));
+			robots[i] = new Robot(i, Instantiate(RobotPrefab), position, 40.0f * i);
+		}
 
 		return result;
 	}
@@ -160,5 +204,11 @@ public class Main : MonoBehaviour
 			overheadCamera.orthographic = true;
 			overheadCamera.orthographicSize = config.GroundLength * 0.42f;
 		}
+	}
+
+	private void updateSim()
+	{
+		for (int i = 0; i < robots.Length; ++i)
+			robots[i].update();
 	}
 }

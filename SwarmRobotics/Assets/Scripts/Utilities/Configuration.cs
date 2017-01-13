@@ -4,7 +4,7 @@ namespace Utilities
 {
 	public class Configuration
 	{
-		private float groundLength = 50.0f;
+		private float groundLength = 25.0f;
 
 		public float GroundLength
 		{

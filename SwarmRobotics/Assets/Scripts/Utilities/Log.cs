@@ -37,6 +37,7 @@ namespace Utilities
 		public static LogTag ARGS { get { return new LogTag("ARGS"); } }
 		public static LogTag CONFIG { get { return new LogTag("CONFIG"); } }
 		public static LogTag FILEUTILITIES { get { return new LogTag("FILE-UTILITIES"); } }
+		public static LogTag ROBOTICS { get { return new LogTag("ROBOTICS"); } }
 
 		private LogTag(string value)
 		{
