@@ -1,0 +1,34 @@
+################################################################################
+Main.cs (extends Unity's Monobehaviour)
+--------------------------------------------------------------------------------
+Start()
+- read configuration file
+- generate environment (color different areas, scatter obstacles/resources)
+- create and place robots according to the configuration file
+- pause the simulation and wait for the user to start (let them pan around?)
+
+Update()
+- check for player input and take appropriate action (pause/restart/stop sim, 
+  pan camera, select a robot to view data, show/hide commands, etc.)
+- run simulation update loop (see below)
+- take screenshots/write new events to log
+
+UpdateSim()
+- distribute messages to robots (either at the start of the next turn, after a
+  set delay, or after the message would have propagated from the sender)
+- iterate through the robots and call their Update() functions
+
+################################################################################
+Robot.cs (does NOT extend Unity's Monobehaviour)
+--------------------------------------------------------------------------------
+robot pathfinding: mark a grid centered at (0,0) (which is center/left corner?)
+if it's occupied by an environmental object (send a message or something), then
+plan out routes based on what it knows (implement some kind of sharing?)
+
+network thing: draw expanding circles that represent how far a message has
+travelled, and then message sender tracks the intended recipient and checks at
+every frame if the message would reach the robot
+
+possibly add delay processing to simulate hardware decoding and all that
+
+have to send ACKs?

@@ -1,0 +1,1 @@
+groundLength=50.0
