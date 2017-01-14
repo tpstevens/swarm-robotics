@@ -33,8 +33,6 @@ namespace Robotics
 			{
 				rigidbody.position = startPosition;
 				rigidbody.rotation = Quaternion.AngleAxis(startRotation, Vector3.up);
-
-				Collider collider = body.GetComponent<Collider>();
 			}
 		}
 
@@ -65,3 +63,10 @@ namespace Robotics
 		}
 	}
 }
+
+/* NOTES
+ *
+ * All robots add themselves to global Robot array on creation? To avoid lookups
+ * on collisions.
+ * 
+ */

@@ -15,6 +15,11 @@ public class Main : MonoBehaviour
 	private Configuration currentConfig;
 	private Robot[] robots;
 
+	public void notifyCollision(int robotId, Collision collision)
+	{
+		robots[robotId].body.GetComponent<Renderer>().material.color = Color.gray;
+	}
+
 	private void Start()
 	{
 		Log.w(LogTag.MAIN, "Loading scene " + SceneManager.GetActiveScene().name);
