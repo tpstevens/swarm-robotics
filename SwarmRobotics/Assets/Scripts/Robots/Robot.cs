@@ -11,6 +11,7 @@ namespace Robotics
 		private readonly float TIMER_PERIOD = 2.0f;
 		private readonly float VELOCITY = 2.0f;
 
+		private bool collided = false;
 		private float timer = 0.5f;
 		private int id;
 		private Rigidbody rigidbody;
@@ -38,7 +39,7 @@ namespace Robotics
 
 		public void handleCollision()
 		{
-			randomizeDirection();
+			collided = true;
 		}
 
 		public void update()
@@ -49,6 +50,25 @@ namespace Robotics
 			{
 				timer = TIMER_PERIOD;
 				randomizeDirection();
+
+				// body.GetComponent<Renderer>().material.color = Color.red;
+			}
+
+			if (collided)
+			{
+				collided = false;
+				body.GetComponent<Renderer>().material.color = Color.gray;
+
+				// TODO: on collision, robot turns and moves in the opposite direction
+				// TODO: add arrows so we can see robot direction
+
+				// rigidbody.AddForce(-1 * rigidbody.velocity, ForceMode.VelocityChange);
+				// rigidbody.transform.rotation.SetLookRotation(rigidbody.velocity, Vector3.up);
+				// Vector3 velocity = Vector3.Normalize(rigidbody.transform.forward) * VELOCITY;
+				// rigidbody.AddForce(velocity, ForceMode.VelocityChange);
+
+				randomizeDirection();
+				timer = TIMER_PERIOD;
 			}
 		}
 

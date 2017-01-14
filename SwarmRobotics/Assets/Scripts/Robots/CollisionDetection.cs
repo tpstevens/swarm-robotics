@@ -13,6 +13,8 @@ public class CollisionDetection : MonoBehaviour {
 
 	private void OnCollisionEnter(Collision collision)
 	{
+		// TODO handle collisions with walls while excluding floors
+
 		if (collision.transform.name.StartsWith("Robot"))
 		{
 			string name = gameObject.name;

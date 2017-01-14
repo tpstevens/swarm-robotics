@@ -17,7 +17,7 @@ public class Main : MonoBehaviour
 
 	public void notifyCollision(int robotId, Collision collision)
 	{
-		robots[robotId].body.GetComponent<Renderer>().material.color = Color.gray;
+		robots[robotId].handleCollision();
 	}
 
 	private void Start()
