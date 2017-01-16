@@ -4,89 +4,110 @@ using Utilities;
 
 namespace Robotics
 {
-	public class Robot {
+    public class Robot {
 
-		public GameObject body;
+        public GameObject body;
 
-		private readonly float TIMER_PERIOD = 2.0f;
-		private readonly float VELOCITY = 2.0f;
+        private readonly float TIMER_PERIOD = 2.0f;
+        private readonly float VELOCITY = 2.0f;
 
-		private bool collided = false;
-		private float timer = 0.5f;
-		private int id;
-		private Rigidbody rigidbody;
+        private bool collided = false;
+        private float timer = 0.5f;
+        private int id;
+        private Rigidbody rigidbody;
 
-		public Robot(int id, GameObject body, Vector3 startPosition, float startRotation)
-		{
-			this.body = body;
-			this.id = id;
+        /// <summary>
+        /// Constructs a Robot object and assigns the Robot header object as its parent, if found.
+        /// </summary>
+        /// <param name="id">The robot's ID. There is no check for uniqueness, so be careful!</param>
+        /// <param name="body">The GameObject corresponding to the robot in the scene.</param>
+        /// <param name="startPosition">The starting position of the robot.</param>
+        /// <param name="startRotation">The starting rotation of the robot.</param>
+        public Robot(int id, GameObject body, Vector3 startPosition, float startRotation)
+        {
+            this.body = body;
+            this.id = id;
 
-			body.name = "Robot " + id;
-			body.transform.position = startPosition;
-			body.transform.parent = GameObject.Find("Robots").transform;
-			rigidbody = body.GetComponent<Rigidbody>();
+            body.name = "Robot " + id;
+            body.transform.position = startPosition;
+            rigidbody = body.GetComponent<Rigidbody>();
 
-			if (rigidbody == null)
-			{
-				Log.e(LogTag.ROBOTICS, "Failed to find rigidbody on robot " + id);
-			}
-			else
-			{
-				rigidbody.position = startPosition;
-				rigidbody.rotation = Quaternion.AngleAxis(startRotation, Vector3.up);
-			}
-		}
+            if (rigidbody == null)
+            {
+                Log.e(LogTag.ROBOTICS, "Failed to find rigidbody on robot " + id);
+            }
+            else
+            {
+                rigidbody.position = startPosition;
+                rigidbody.rotation = Quaternion.AngleAxis(startRotation, Vector3.up);
 
-		public void handleCollision()
-		{
-			collided = true;
-		}
+                GameObject robotHeader = GameObject.Find("Robots");
+                if (robotHeader == null) 
+                {
+                    Log.w(LogTag.ROBOTICS, "Created Robots header object");
 
-		public void update()
-		{
-			timer -= Time.deltaTime;
+                    robotHeader = new GameObject("Robots");
+                    robotHeader.transform.position = Vector3.zero;
+                    robotHeader.transform.rotation = new Quaternion(0f, 0f, 0f, 0f);
+                }
 
-			if (timer <= 0.0f)
-			{
-				timer = TIMER_PERIOD;
-				randomizeDirection();
+                body.transform.parent = robotHeader.transform;
+            }
+        }
 
-				// body.GetComponent<Renderer>().material.color = Color.red;
-			}
+        /// <summary>
+        /// Notify the robot that it has collided with another. The collision should be handled
+        /// inside the update() function, not here.
+        /// </summary>
+        public void notifyCollision()
+        {
+            collided = true;
+        }
 
-			if (collided)
-			{
-				collided = false;
-				body.GetComponent<Renderer>().material.color = Color.gray;
+        /// <summary>
+        /// The equivalent of MonoBehaviour.Update(), but called by the main script.
+        /// </summary>
+        public void update()
+        {
+            timer -= Time.deltaTime;
 
-				// TODO: on collision, robot turns and moves in the opposite direction
-				// TODO: add arrows so we can see robot direction
+            if (timer <= 0.0f)
+            {
+                timer = TIMER_PERIOD;
+                randomizeDirection();
+            }
 
-				// rigidbody.AddForce(-1 * rigidbody.velocity, ForceMode.VelocityChange);
-				// rigidbody.transform.rotation.SetLookRotation(rigidbody.velocity, Vector3.up);
-				// Vector3 velocity = Vector3.Normalize(rigidbody.transform.forward) * VELOCITY;
-				// rigidbody.AddForce(velocity, ForceMode.VelocityChange);
+            // Handle any collisions and reset the flag if necessary
+            if (collided)
+            {
+                collided = false;
+                body.GetComponent<Renderer>().material.color = Color.gray;
 
-				randomizeDirection();
-				timer = TIMER_PERIOD;
-			}
-		}
+                // TODO: on collision, robot turns and moves in the opposite direction
+                // TODO: add arrows so we can see robot direction
 
-		private void randomizeDirection()
-		{
-			float angle = Random.Range(0, 359);
-			rigidbody.transform.rotation = Quaternion.AngleAxis(angle, Vector3.up);
+                // rigidbody.AddForce(-1 * rigidbody.velocity, ForceMode.VelocityChange);
+                // rigidbody.transform.rotation.SetLookRotation(rigidbody.velocity, Vector3.up);
+                // Vector3 velocity = Vector3.Normalize(rigidbody.transform.forward) * VELOCITY;
+                // rigidbody.AddForce(velocity, ForceMode.VelocityChange);
 
-			Vector3 velocity = Vector3.Normalize(rigidbody.transform.forward) * VELOCITY;
-			rigidbody.AddForce(-1 * rigidbody.velocity, ForceMode.VelocityChange);
-			rigidbody.AddForce(velocity, ForceMode.VelocityChange);
-		}
-	}
+                randomizeDirection();
+                timer = TIMER_PERIOD;
+            }
+        }
+
+        /// <summary>
+        /// Rotate the robot in a random direction and reset its velocity. At the moment, robots 
+        /// move in the same direction as their current orientation.
+        /// </summary>
+        private void randomizeDirection()
+        {
+            float angle = Random.Range(0, 359);
+            rigidbody.transform.rotation = Quaternion.AngleAxis(angle, Vector3.up);
+
+            Vector3 velocity = Vector3.Normalize(rigidbody.transform.forward) * VELOCITY;
+            rigidbody.AddForce(-1 * rigidbody.velocity, ForceMode.VelocityChange);
+            rigidbody.AddForce(velocity, ForceMode.VelocityChange);
+        }
+    }
 }
-
-/* NOTES
- *
- * All robots add themselves to global Robot array on creation? To avoid lookups
- * on collisions.
- * 
- */
