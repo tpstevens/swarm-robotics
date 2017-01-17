@@ -33,6 +33,9 @@ public class Main : MonoBehaviour
     {
         Log.w(LogTag.MAIN, "Loading scene " + SceneManager.GetActiveScene().name);
 
+        // initialize random number generator
+        Random.InitState(System.DateTime.Now.Millisecond);
+
         // reads args from file, creates default if necessary
         Args args = new Args();
 
@@ -184,9 +187,6 @@ public class Main : MonoBehaviour
 
         bool result = true;
 
-        Random.InitState(System.DateTime.Now.Millisecond);
-        robots = new Robot[17];
-
         // Create robot header object
         if (RobotObjects == null)
         {
@@ -204,28 +204,26 @@ public class Main : MonoBehaviour
             }
         }
 
-        for (int i = 0; i < 9; ++i)
-        {
-            Vector3 position = new Vector3(-8 + 2 * i, 
-                                           RobotPrefab.transform.position.y, 
-                                           -8 + 2 * i);
-            robots[i] = new Robot(i, Instantiate(RobotPrefab), position, 40.0f * i);
-        }
+        robots = new Robot[config.NumRobots];
 
-        for (int i = 9; i < 13; ++i)
+        if (config.SpawnShape == Configuration.eSpawnShape.SQUARE)
         {
-            Vector3 position = new Vector3(8 - 2 * (i - 9), 
-                                           RobotPrefab.transform.position.y, 
-                                           -8 + 2 * (i - 9));
-            robots[i] = new Robot(i, Instantiate(RobotPrefab), position, 40.0f * i);
-        }
-
-        for (int i = 13; i < 17; ++i)
-        {
-            Vector3 position = new Vector3(8 - 2 * (i - 8), 
-                                           RobotPrefab.transform.position.y, 
-                                           -8 + 2 * (i - 8));
-            robots[i] = new Robot(i, Instantiate(RobotPrefab), position, 40.0f * i);
+            int numRobotsRoot = (int)Mathf.Sqrt(config.NumRobots);
+            float robotSpacing = config.SpawnRadius * 2.0f / (numRobotsRoot - 1);
+            for (int i = 0; i < numRobotsRoot; ++i)
+            {
+                for (int j = 0; j < numRobotsRoot; ++j)
+                {
+                    float x = config.SpawnCenter.x - config.SpawnRadius + i * robotSpacing;
+                    float z = config.SpawnCenter.y - config.SpawnRadius + j * robotSpacing;
+                    int id = numRobotsRoot * i + j;
+                    Vector3 position = new Vector3(x, RobotPrefab.transform.position.y, z);
+                    robots[numRobotsRoot * i + j] = new Robot(id, 
+                                                              Instantiate(RobotPrefab), 
+                                                              position, 
+                                                              0.0f);
+                }
+            }
         }
 
         return result;

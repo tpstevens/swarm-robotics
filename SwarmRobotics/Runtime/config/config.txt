@@ -1,1 +1,8 @@
-groundLength=25.0
+# Ground Parameters
+groundLength = 25.0
+
+# Spawn Parameters
+numRobots = 16
+spawnCenter = {0.0, 0.0}
+spawnRadius = 5.0
+spawnShape  = square
