@@ -2,14 +2,14 @@
 
 public class CollisionDetection : MonoBehaviour {
 
-    private Main mainScript;
+    private MainInterface mainScript;
 
     /// <summary>
     /// Implementation of MonoBehavior.Start()
     /// </summary>
     void Start()
     {
-        mainScript = (Main)GameObject.Find("Scripts").GetComponent(typeof(Main));
+        mainScript = (MainInterface)GameObject.Find("Scripts").GetComponent(typeof(MainInterface));
     }
 
     /// <summary>
