@@ -6,6 +6,8 @@ namespace Utilities
 {
     public class ApplicationManager
     {
+        private static bool handledQuitEvent = false;
+
         /// <summary>
         /// Write the current log to file, clear the log, and reload the current scene.
         /// </summary>
@@ -15,6 +17,9 @@ namespace Utilities
             string timestamp = DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss");
             Log.writeToFile("log_" + timestamp + ".txt");
             Log.clear();
+
+            Comm.clear();
+
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
 
@@ -23,14 +28,20 @@ namespace Utilities
         /// </summary>
         public static void quit()
         {
-            string timestamp = DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss");
-            Log.writeToFile("log_" + timestamp + ".txt");
+            // to prevent MonoBehaviour.OnApplicationQuit() from writing duplicate logs
+            if (!handledQuitEvent)
+            {
+                handledQuitEvent = true;
+                string timestamp = DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss");
+                Log.writeToFile("log_" + timestamp + ".txt");
 
 #if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
+                UnityEditor.EditorApplication.isPlaying = false;
 #else
-            UnityEngine.Application.Quit();
+                UnityEngine.Application.Quit();
 #endif
+            }
+
         }
     }
 }

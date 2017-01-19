@@ -44,6 +44,7 @@ namespace Utilities
 
         public static LogTag MAIN { get { return new LogTag("MAIN"); } }
         public static LogTag ARGS { get { return new LogTag("ARGS"); } }
+        public static LogTag COMM { get { return new LogTag("COMM"); } }
         public static LogTag CONFIG { get { return new LogTag("CONFIG"); } }
         public static LogTag FILEUTILITIES { get { return new LogTag("FILE-UTILITIES"); } }
         public static LogTag ROBOTICS { get { return new LogTag("ROBOTICS"); } }
@@ -107,6 +108,7 @@ namespace Utilities
         public static void a(LogTag tag, string message)
         {
             write(LogLevel.Assert, tag, message);
+            ApplicationManager.quit();
         }
 
         /// <summary>
@@ -117,6 +119,7 @@ namespace Utilities
         public static void a(string tag, string message)
         {
             write(LogLevel.Assert, tag, message);
+            ApplicationManager.quit();
         }
 
         /// <summary>
@@ -202,9 +205,23 @@ namespace Utilities
         /// <summary>
         /// Clear the log without writing it to the file.
         /// </summary>
-        public static void clear()
+        public static void clear(bool clearEditorConsole = true)
         {
-            log = new Log();
+            lock (mutex)
+            {
+                log = new Log();
+
+#if UNITY_EDITOR
+                if (clearEditorConsole)
+                {
+                    var logEntries = Type.GetType("UnityEditorInternal.LogEntries,UnityEditor.dll");
+                    var clearMethod = logEntries.GetMethod("Clear",
+                                                           System.Reflection.BindingFlags.Static
+                                                           | System.Reflection.BindingFlags.Public);
+                    clearMethod.Invoke(null, null);
+                }
+#endif
+            }
         }
 
         /// <summary>
@@ -247,19 +264,19 @@ namespace Utilities
 
             switch (level) {
                 case LogLevel.Verbose:
-                    Debug.Log(tag + " - " + message);
+                    Debug.Log(tag + " | " + message);
                     break;
                 case LogLevel.Debug:
-                    Debug.Log(tag + " - " + message);
+                    Debug.Log(tag + " | " + message);
                     break;
                 case LogLevel.Warning:
-                    Debug.LogWarning(tag + " - " + message);
+                    Debug.LogWarning(tag + " | " + message);
                     break;
                 case LogLevel.Error:
-                    Debug.LogError(tag + " - " + message);
+                    Debug.LogError(tag + " | " + message);
                     break;
                 case LogLevel.Assert:
-                    Debug.LogAssertion(tag + " - " + message);
+                    Debug.LogAssertion(tag + " | " + message);
                     break;
             }
         }

@@ -16,7 +16,39 @@ public class Main : MonoBehaviour, MainInterface
     private Robot[] robots;
 
     /// <summary>
-    /// Notify a robot that it has collided another.
+    /// Returns the number of robots.
+    /// </summary>
+    /// <returns>The number of robots.</returns>
+    public int getNumRobots()
+    {
+        return robots.Length;
+    }
+
+    /// <summary>
+    /// Get the position of the robot with the given ID.
+    /// </summary>
+    /// <param name="robotId">The robot ID.</param>
+    /// <param name="position">The Vector3 that will be assigned to the robot position.</param>
+    /// <returns>Whether the position was successfully assigned.</returns>
+    public bool getRobotPosition(int robotId, out Vector3 position)
+    {
+        bool result = false;
+
+        if (robotId < robots.Length && robots[robotId] != null)
+        {
+            position = robots[robotId].body.transform.position;
+            result = true;
+        }
+        else
+        {
+            position = Vector3.zero;
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Notify a robot that it has collided with another.
     /// </summary>
     /// <param name="robotId">The id of the robot that collided.</param>
     /// <param name="collision">The Collision object.</param>
@@ -57,6 +89,11 @@ public class Main : MonoBehaviour, MainInterface
 
         // distribute messages and call each robot's update() function
         updateSim();
+    }
+
+    private void OnApplicationQuit()
+    {
+        ApplicationManager.quit();
     }
 
     /// <summary>
@@ -246,6 +283,18 @@ public class Main : MonoBehaviour, MainInterface
         {
             Time.timeScale = (Time.timeScale != 0.0f) ? 0f : 1f;
             Log.d(LogTag.MAIN, "Timescale set to " + Time.timeScale);
+        }
+        else if (Input.GetKeyDown(KeyCode.C))
+        {
+            int sender = Random.Range(0, robots.Length);
+            int receiver = sender;
+            while (receiver == sender)
+                receiver = Random.Range(0, robots.Length + 1);
+
+            if (receiver == robots.Length)
+                receiver = Comm.ALL;
+
+            Comm.sendMessage(sender, receiver, "TEST MESSAGE");
         }
     }
 
