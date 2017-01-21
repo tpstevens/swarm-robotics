@@ -1,7 +1,15 @@
 ﻿using UnityEngine;
 
+using Utilities;
+
 public interface MainInterface
 {
+    /// <summary>
+    /// Return the currently active configuration.
+    /// </summary>
+    /// <returns>The currently active configuration.</returns>
+    Config getCurrentConfig();
+
     /// <summary>
     /// Returns the number of robots.
     /// </summary>
@@ -22,4 +30,11 @@ public interface MainInterface
     /// <param name="robotId">The id of the robot that collided.</param>
     /// <param name="collision">The Collision object.</param>
     void notifyCollision(int robotId, Collision collision);
+
+    /// <summary>
+    /// Notify a robot that it has received a message.
+    /// </summary>
+    /// <param name="robotId">The recipient's ID.</param>
+    /// <param name="msg">The message.</param>
+    void notifyMessage(int robotId, CommMessage msg);
 }

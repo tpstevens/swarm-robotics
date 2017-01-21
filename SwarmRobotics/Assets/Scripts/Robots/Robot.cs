@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 
+using System.Collections.Generic;
+
 using Utilities;
 
 namespace Robotics
@@ -14,6 +16,7 @@ namespace Robotics
         private bool collided = false;
         private float timer = 0.5f;
         private int id;
+        private Queue<CommMessage> unhandledMessages;
         private Rigidbody rigidbody;
 
         /// <summary>
@@ -27,6 +30,8 @@ namespace Robotics
         {
             this.body = body;
             this.id = id;
+
+            unhandledMessages = new Queue<CommMessage>();
 
             body.name = "Robot " + id;
             body.transform.position = startPosition;
@@ -65,11 +70,23 @@ namespace Robotics
         }
 
         /// <summary>
+        /// Notify the robot that it has receieved a message. The message will be added to
+        /// the end of the queue and handled inside the update() function, not here.
+        /// </summary>
+        /// <param name="msg"></param>
+        public void queueMessage(CommMessage msg)
+        {
+            unhandledMessages.Enqueue(msg);
+        }
+
+        /// <summary>
         /// The equivalent of MonoBehaviour.Update(), but called by the main script.
         /// </summary>
         public void update()
         {
             timer -= Time.deltaTime;
+
+            handleMessages();
 
             if (timer <= 0.0f)
             {
@@ -93,6 +110,20 @@ namespace Robotics
 
                 randomizeDirection();
                 timer = TIMER_PERIOD;
+            }
+        }
+
+        /// <summary>
+        /// Process the queue of unhandled messages.
+        /// </summary>
+        private void handleMessages()
+        {
+            CommMessage msg;
+
+            while (unhandledMessages.Count > 0)
+            {
+                msg = unhandledMessages.Dequeue();
+                Log.d(LogTag.ROBOTICS, "Robot " + id + " received message (" + msg.messageId + ")");
             }
         }
 

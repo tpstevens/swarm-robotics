@@ -32,7 +32,7 @@ namespace Utilities
     }
 
     /// <summary>
-    /// The log message's ag.
+    /// The log message's tag.
     /// </summary>
     public class LogTag
     {
@@ -105,9 +105,9 @@ namespace Utilities
         /// </summary>
         /// <param name="tag">The message tag.</param>
         /// <param name="message">The message text.</param>
-        public static void a(LogTag tag, string message)
+        public static void a(LogTag tag, string message, bool showInConsole = true)
         {
-            write(LogLevel.Assert, tag, message);
+            write(LogLevel.Assert, tag, message, showInConsole);
             ApplicationManager.quit();
         }
 
@@ -116,9 +116,9 @@ namespace Utilities
         /// </summary>
         /// <param name="tag">The message tag.</param>
         /// <param name="message">The message text.</param>
-        public static void a(string tag, string message)
+        public static void a(string tag, string message, bool showInConsole = true)
         {
-            write(LogLevel.Assert, tag, message);
+            write(LogLevel.Assert, tag, message, showInConsole);
             ApplicationManager.quit();
         }
 
@@ -127,9 +127,9 @@ namespace Utilities
         /// </summary>
         /// <param name="tag">The message tag.</param>
         /// <param name="message">The message text.</param>
-        public static void d(LogTag tag, string message)
+        public static void d(LogTag tag, string message, bool showInConsole = true)
         {
-            write(LogLevel.Debug, tag, message);
+            write(LogLevel.Debug, tag, message, showInConsole);
         }
 
         /// <summary>
@@ -137,9 +137,9 @@ namespace Utilities
         /// </summary>
         /// <param name="tag">The message tag.</param>
         /// <param name="message">The message text.</param>
-        public static void d(string tag, string message)
+        public static void d(string tag, string message, bool showInConsole = true)
         {
-            write(LogLevel.Debug, tag, message);
+            write(LogLevel.Debug, tag, message, showInConsole);
         }
 
         /// <summary>
@@ -147,9 +147,9 @@ namespace Utilities
         /// </summary>
         /// <param name="tag">The message tag.</param>
         /// <param name="message">The message text.</param>
-        public static void e(LogTag tag, string message)
+        public static void e(LogTag tag, string message, bool showInConsole = true)
         {
-            write(LogLevel.Error, tag, message);
+            write(LogLevel.Error, tag, message, showInConsole);
         }
 
         /// <summary>
@@ -157,9 +157,9 @@ namespace Utilities
         /// </summary>
         /// <param name="tag">The message tag.</param>
         /// <param name="message">The message text.</param>
-        public static void e(string tag, string message)
+        public static void e(string tag, string message, bool showInConsole = true)
         {
-            write(LogLevel.Error, tag, message);
+            write(LogLevel.Error, tag, message, showInConsole);
         }
 
         /// <summary>
@@ -167,9 +167,9 @@ namespace Utilities
         /// </summary>
         /// <param name="tag">The message tag.</param>
         /// <param name="message">The message text.</param>
-        public static void w(LogTag tag, string message)
+        public static void w(LogTag tag, string message, bool showInConsole = true)
         {
-            write(LogLevel.Warning, tag, message);
+            write(LogLevel.Warning, tag, message, showInConsole);
         }
 
         /// <summary>
@@ -177,9 +177,9 @@ namespace Utilities
         /// </summary>
         /// <param name="tag">The message tag.</param>
         /// <param name="message">The message text.</param>
-        public static void w(string tag, string message)
+        public static void w(string tag, string message, bool showInConsole = true)
         {
-            write(LogLevel.Warning, tag, message);
+            write(LogLevel.Warning, tag, message, showInConsole);
         }
 
         /// <summary>
@@ -187,9 +187,9 @@ namespace Utilities
         /// </summary>
         /// <param name="tag">The message tag.</param>
         /// <param name="message">The message text.</param>
-        public static void v(LogTag tag, string message)
+        public static void v(LogTag tag, string message, bool showInConsole = true)
         {
-            write(LogLevel.Verbose, tag, message);
+            write(LogLevel.Verbose, tag, message, showInConsole);
         }
 
         /// <summary>
@@ -197,9 +197,9 @@ namespace Utilities
         /// </summary>
         /// <param name="tag">The message tag.</param>
         /// <param name="message">The message text.</param>
-        public static void v(string tag, string message)
+        public static void v(string tag, string message, bool showInConsole = true)
         {
-            write(LogLevel.Verbose, tag, message);
+            write(LogLevel.Verbose, tag, message, showInConsole);
         }
 
         /// <summary>
@@ -230,9 +230,9 @@ namespace Utilities
         /// <param name="level">The log level.</param>
         /// <param name="tag">The message tag.</param>
         /// <param name="message">The message text.</param>
-        public static void write(LogLevel level, LogTag tag, string message)
+        public static void write(LogLevel level, LogTag tag, string message, bool showInConsole)
         {
-            write(level, tag.Value, message);
+            write(level, tag.Value, message, showInConsole);
         }
 
         /// <summary>
@@ -241,7 +241,7 @@ namespace Utilities
         /// <param name="level">The log level.</param>
         /// <param name="tag">The message tag.</param>
         /// <param name="message">The message text.</param>
-        public static void write(LogLevel level, string tag, string message)
+        public static void write(LogLevel level, string tag, string message, bool showInConsole)
         {
             Log log = Instance();
             int tagId;
@@ -262,22 +262,25 @@ namespace Utilities
 
             log.messages.Add(new LogMessage(level, tagId, message));
 
-            switch (level) {
-                case LogLevel.Verbose:
-                    Debug.Log(tag + " | " + message);
-                    break;
-                case LogLevel.Debug:
-                    Debug.Log(tag + " | " + message);
-                    break;
-                case LogLevel.Warning:
-                    Debug.LogWarning(tag + " | " + message);
-                    break;
-                case LogLevel.Error:
-                    Debug.LogError(tag + " | " + message);
-                    break;
-                case LogLevel.Assert:
-                    Debug.LogAssertion(tag + " | " + message);
-                    break;
+            if (showInConsole)
+            {
+                switch (level) {
+                    case LogLevel.Verbose:
+                        Debug.Log(tag + " | " + message);
+                        break;
+                    case LogLevel.Debug:
+                        Debug.Log(tag + " | " + message);
+                        break;
+                    case LogLevel.Warning:
+                        Debug.LogWarning(tag + " | " + message);
+                        break;
+                    case LogLevel.Error:
+                        Debug.LogError(tag + " | " + message);
+                        break;
+                    case LogLevel.Assert:
+                        Debug.LogAssertion(tag + " | " + message);
+                        break;
+                }
             }
         }
 

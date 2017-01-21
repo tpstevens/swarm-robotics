@@ -12,8 +12,17 @@ public class Main : MonoBehaviour, MainInterface
     public GameObject RobotObjects;
     public GameObject RobotPrefab;
 
-    private Configuration currentConfig;
+    private Config currentConfig;
     private Robot[] robots;
+
+    /// <summary>
+    /// Return the currently active configuration.
+    /// </summary>
+    /// <returns>The currently active configuration.</returns>
+    public Config getCurrentConfig()
+    {
+        return currentConfig;
+    }
 
     /// <summary>
     /// Returns the number of robots.
@@ -58,6 +67,16 @@ public class Main : MonoBehaviour, MainInterface
     }
 
     /// <summary>
+    /// Notify a robot that it has received a message.
+    /// </summary>
+    /// <param name="robotId">The recipient's ID.</param>
+    /// <param name="msg">The message.</param>
+    public void notifyMessage(int robotId, CommMessage msg)
+    {
+        robots[robotId].queueMessage(msg);
+    }
+
+    /// <summary>
     /// Implementation of MonoBehaviour.Start(). Reads the argument files, create the environment, 
     /// place robots, and pause the simulation. 
     /// </summary>
@@ -99,9 +118,9 @@ public class Main : MonoBehaviour, MainInterface
     /// <summary>
     /// Create the environment, including initializing and scaling the ground if necessary.
     /// </summary>
-    /// <param name="config">The current Configuration.</param>
+    /// <param name="config">The current Config.</param>
     /// <returns>Whether the environment was initialized successfully.</returns>
-    private bool generateEnvironment(Configuration config)
+    private bool generateEnvironment(Config config)
     {
         float scaledGroundLength = config.GroundLength / 10.0f; // plane's dimensions are scaled up
         bool result = true;
@@ -197,7 +216,7 @@ public class Main : MonoBehaviour, MainInterface
     private bool initialize(string configFile)
     {
         bool result = true;
-        currentConfig = new Configuration(configFile); // reads the config file and sets parameters
+        currentConfig = new Config(configFile); // reads the config file and sets parameters
 
         if (!generateEnvironment(currentConfig) || !placeRobots(currentConfig))
         {
@@ -216,9 +235,9 @@ public class Main : MonoBehaviour, MainInterface
     /// <summary>
     /// Initialize and place the robots according to the configuration.
     /// </summary>
-    /// <param name="config">The current Configuration.</param>
+    /// <param name="config">The current Config.</param>
     /// <returns>Whether the robots were initialized and positioned successfully.</returns>
-    private bool placeRobots(Configuration config)
+    private bool placeRobots(Config config)
     {
         // TODO: read number, placement shape, and location from config
 
@@ -243,7 +262,7 @@ public class Main : MonoBehaviour, MainInterface
 
         robots = new Robot[config.NumRobots];
 
-        if (config.SpawnShape == Configuration.eSpawnShape.SQUARE)
+        if (config.SpawnShape == Config.eSpawnShape.SQUARE)
         {
             int numRobotsRoot = (int)Mathf.Sqrt(config.NumRobots);
             float robotSpacing = config.SpawnRadius * 2.0f / (numRobotsRoot - 1);
@@ -284,7 +303,7 @@ public class Main : MonoBehaviour, MainInterface
             Time.timeScale = (Time.timeScale != 0.0f) ? 0f : 1f;
             Log.d(LogTag.MAIN, "Timescale set to " + Time.timeScale);
         }
-        else if (Input.GetKeyDown(KeyCode.C))
+        else if (Input.GetKeyDown(KeyCode.M))
         {
             int sender = Random.Range(0, robots.Length);
             int receiver = sender;
@@ -296,13 +315,17 @@ public class Main : MonoBehaviour, MainInterface
 
             Comm.sendMessage(sender, receiver, "TEST MESSAGE");
         }
+        else if (Input.GetKeyDown(KeyCode.C))
+        {
+            Comm.toggleShowInConsole();
+        }
     }
 
     /// <summary>
     /// Resize the overhead camera to fit the entire scene.
     /// </summary>
-    /// <param name="config">The current Configuration.</param>
-    private void repositionCameras(Configuration config)
+    /// <param name="config">The current Config.</param>
+    private void repositionCameras(Config config)
     {
         if (overheadCamera == null)
         {
@@ -323,6 +346,8 @@ public class Main : MonoBehaviour, MainInterface
     /// </summary>
     private void updateSim()
     {
+        Comm.update(Time.deltaTime);
+
         for (int i = 0; i < robots.Length; ++i)
             robots[i].update();
     }

@@ -1,3 +1,6 @@
+# Comm Parameters
+messageSpeed = 10.0
+
 # Ground Parameters
 groundLength = 25.0
 
