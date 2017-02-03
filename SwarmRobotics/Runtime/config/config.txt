@@ -1,11 +1,14 @@
 # Comm Parameters
-messageSpeed = 10.0
+msgSpeed           = 10.0
+msgDistanceLimit   = 25.0f;
+commShowInUnityConsole = true
+commShowMsgIndicator   = true
 
 # Ground Parameters
 groundLength = 25.0
 
 # Spawn Parameters
-numRobots = 16
+numRobots   = 16
 spawnCenter = {0.0, 0.0}
 spawnRadius = 5.0
 spawnShape  = square

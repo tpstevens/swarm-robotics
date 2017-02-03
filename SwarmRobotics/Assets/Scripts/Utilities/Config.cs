@@ -8,19 +8,39 @@ namespace Utilities
     {
         public enum eSpawnShape { CIRCLE, SQUARE };
 
+        private bool commShowInUnityConsole = false;
+        private bool commShowMsgIndicators = false;
         private eSpawnShape spawnShape = eSpawnShape.SQUARE;
-        private float commMessageSpeed = 10.0f;
+        private float commMsgDistanceLimit = 25.0f;
+        private float commMsgSpeed = 10.0f;
         private float groundLength = 25.0f;
         private float spawnRadius = 5.0f; // applies to both square and circle spawn shapes
         private int numRobots = 16;
         private Vector2 spawnCenter = Vector2.zero;
 
-        public float CommMessageSpeed
+        public bool CommShowInUnityConsole
         {
-            get { return commMessageSpeed; }
-            set { if (value > 0f) { commMessageSpeed = value; } }
+            get { return commShowInUnityConsole; }
+            set { commShowInUnityConsole = value; }
         }
 
+        public bool CommShowMsgIndicators
+        {
+            get { return commShowMsgIndicators; }
+            set { commShowMsgIndicators = value; }
+        }
+
+        public float CommMsgDistanceLimit
+        {
+            get { return commMsgDistanceLimit; }
+            set { if (value > 0f) { commMsgDistanceLimit = value; } }
+        }
+
+        public float CommMsgSpeed
+        {
+            get { return commMsgSpeed; }
+            set { if (value > 0f) { commMsgSpeed = value; } }
+        }
 
         /// <summary>
         /// Side length of ground, assuming when it's square.
@@ -97,15 +117,30 @@ namespace Utilities
 
                             if (sKey != null)
                             {
-                                if (sKey == "groundlength")
+                                if (sKey == "commshowinunityconsole")
+                                {
+                                    if (!extractBool(sValue, ref commShowInUnityConsole))
+                                        Log.w(LogTag.CONFIG, "Invalid Comm console state " + sValue);
+                                }
+                                else if (sKey == "commshowmsgindicator")
+                                {
+                                    if (!extractBool(sValue, ref commShowMsgIndicators))
+                                        Log.w(LogTag.CONFIG, "Invalid Comm msg indicator state " + sValue);
+                                }
+                                else if (sKey == "groundlength")
                                 {
                                     if (!extractFloat(sValue, ref groundLength))
                                         Log.w(LogTag.CONFIG, "Invalid ground length " + sValue);
                                 }
-                                else if (sKey == "messagespeed")
+                                else if (sKey == "msgdistancelimit")
                                 {
-                                    if (!extractFloat(sValue, ref commMessageSpeed))
-                                        Log.w(LogTag.CONFIG, "Invalid message speed " + sValue);
+                                    if (!extractFloat(sValue, ref commMsgDistanceLimit))
+                                        Log.w(LogTag.CONFIG, "Invalid Comm message limit " + sValue);
+                                }
+                                else if (sKey == "msgspeed")
+                                {
+                                    if (!extractFloat(sValue, ref commMsgSpeed))
+                                        Log.w(LogTag.CONFIG, "Invalid Comm message speed " + sValue);
                                 }
                                 else if (sKey == "numrobots")
                                 {
@@ -150,6 +185,17 @@ namespace Utilities
             {
                 Log.e(LogTag.CONFIG, "Config file \"" + filePath + "\" not found");
             }
+        }
+
+        private bool extractBool(string sValue, ref bool bValue)
+        {
+            bool result;
+            bool b;
+
+            if (result = bool.TryParse(sValue, out b))
+                bValue = b;
+
+            return result;
         }
 
         private bool extractFloat(string sValue, ref float fValue)

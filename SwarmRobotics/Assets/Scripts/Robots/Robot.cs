@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 
+using CommSystem;
 using Utilities;
 
 namespace Robotics
@@ -15,9 +16,9 @@ namespace Robotics
 
         private bool collided = false;
         private float timer = 0.5f;
-        private int id;
         private Queue<CommMessage> unhandledMessages;
         private Rigidbody rigidbody;
+        private uint id;
 
         /// <summary>
         /// Constructs a Robot object and assigns the Robot header object as its parent, if found.
@@ -26,7 +27,7 @@ namespace Robotics
         /// <param name="body">The GameObject corresponding to the robot in the scene.</param>
         /// <param name="startPosition">The starting position of the robot.</param>
         /// <param name="startRotation">The starting rotation of the robot.</param>
-        public Robot(int id, GameObject body, Vector3 startPosition, float startRotation)
+        public Robot(uint id, GameObject body, Vector3 startPosition, float startRotation)
         {
             this.body = body;
             this.id = id;
@@ -123,7 +124,6 @@ namespace Robotics
             while (unhandledMessages.Count > 0)
             {
                 msg = unhandledMessages.Dequeue();
-                Log.d(LogTag.ROBOTICS, "Robot " + id + " received message (" + msg.messageId + ")");
             }
         }
 

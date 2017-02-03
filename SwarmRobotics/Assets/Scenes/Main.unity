@@ -253,6 +253,8 @@ MonoBehaviour:
   RobotObjects: {fileID: 888825454}
   RobotPrefab: {fileID: 1337260323036930, guid: 198de0ae4e5b80b46b56c458070f69aa,
     type: 2}
+  MessageIndicatorPrefab: {fileID: 1942259261295958, guid: cfb609de831c5a04db815dafe4f7f6f2,
+    type: 2}
 --- !u!1 &888825454
 GameObject:
   m_ObjectHideFlags: 0

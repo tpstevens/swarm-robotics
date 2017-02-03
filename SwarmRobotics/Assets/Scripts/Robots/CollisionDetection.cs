@@ -24,7 +24,7 @@ public class CollisionDetection : MonoBehaviour {
         if (collision.transform.name.StartsWith("Robot"))
         {
             string name = gameObject.name;
-            int id = int.Parse(name.Substring(name.LastIndexOf(' ') + 1));
+            uint id = uint.Parse(name.Substring(name.LastIndexOf(' ') + 1));
             mainScript.notifyCollision(id, collision); // bad style?
         }
         

@@ -2,10 +2,15 @@
 
 using System;
 
+using CommSystem;
+
 namespace Utilities
 {
     public class ApplicationManager
     {
+        public static readonly int LAYER_ROBOTS = 8;
+        public static readonly int LAYER_MESSAGES = 9;
+
         private static bool handledQuitEvent = false;
 
         /// <summary>

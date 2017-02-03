@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
+using CommSystem;
 using Robotics;
 using Utilities;
 
@@ -11,6 +12,7 @@ public class Main : MonoBehaviour, MainInterface
     public GameObject Ground;
     public GameObject RobotObjects;
     public GameObject RobotPrefab;
+    public GameObject MessageIndicatorPrefab;
 
     private Config currentConfig;
     private Robot[] robots;
@@ -22,6 +24,11 @@ public class Main : MonoBehaviour, MainInterface
     public Config getCurrentConfig()
     {
         return currentConfig;
+    }
+
+    public GameObject getMessageIndicatorPrefab()
+    {
+        return MessageIndicatorPrefab;
     }
 
     /// <summary>
@@ -39,7 +46,7 @@ public class Main : MonoBehaviour, MainInterface
     /// <param name="robotId">The robot ID.</param>
     /// <param name="position">The Vector3 that will be assigned to the robot position.</param>
     /// <returns>Whether the position was successfully assigned.</returns>
-    public bool getRobotPosition(int robotId, out Vector3 position)
+    public bool getRobotPosition(uint robotId, out Vector3 position)
     {
         bool result = false;
 
@@ -61,7 +68,7 @@ public class Main : MonoBehaviour, MainInterface
     /// </summary>
     /// <param name="robotId">The id of the robot that collided.</param>
     /// <param name="collision">The Collision object.</param>
-    public void notifyCollision(int robotId, Collision collision)
+    public void notifyCollision(uint robotId, Collision collision)
     {
         robots[robotId].notifyCollision();
     }
@@ -71,7 +78,7 @@ public class Main : MonoBehaviour, MainInterface
     /// </summary>
     /// <param name="robotId">The recipient's ID.</param>
     /// <param name="msg">The message.</param>
-    public void notifyMessage(int robotId, CommMessage msg)
+    public void notifyMessage(uint robotId, CommMessage msg)
     {
         robots[robotId].queueMessage(msg);
     }
@@ -264,15 +271,15 @@ public class Main : MonoBehaviour, MainInterface
 
         if (config.SpawnShape == Config.eSpawnShape.SQUARE)
         {
-            int numRobotsRoot = (int)Mathf.Sqrt(config.NumRobots);
+            uint numRobotsRoot = (uint)Mathf.Sqrt(config.NumRobots);
             float robotSpacing = config.SpawnRadius * 2.0f / (numRobotsRoot - 1);
-            for (int i = 0; i < numRobotsRoot; ++i)
+            for (uint i = 0; i < numRobotsRoot; ++i)
             {
-                for (int j = 0; j < numRobotsRoot; ++j)
+                for (uint j = 0; j < numRobotsRoot; ++j)
                 {
                     float x = config.SpawnCenter.x - config.SpawnRadius + i * robotSpacing;
                     float z = config.SpawnCenter.y - config.SpawnRadius + j * robotSpacing;
-                    int id = numRobotsRoot * i + j;
+                    uint id = numRobotsRoot * i + j;
                     Vector3 position = new Vector3(x, RobotPrefab.transform.position.y, z);
                     robots[numRobotsRoot * i + j] = new Robot(id, 
                                                               Instantiate(RobotPrefab), 
@@ -305,19 +312,27 @@ public class Main : MonoBehaviour, MainInterface
         }
         else if (Input.GetKeyDown(KeyCode.M))
         {
-            int sender = Random.Range(0, robots.Length);
-            int receiver = sender;
+            uint sender = (uint)Random.Range(0, robots.Length);
+            uint receiver = sender;
             while (receiver == sender)
-                receiver = Random.Range(0, robots.Length + 1);
+                receiver = (uint)Random.Range(0, robots.Length + 1);
 
-            if (receiver == robots.Length)
-                receiver = Comm.ALL;
-
-            Comm.sendMessage(sender, receiver, "TEST MESSAGE");
+            if (receiver == robots.Length) // broadcast message
+            {
+                Comm.broadcastMessage(sender, "TEST BROADCAST");
+            }
+            else // direct message
+            {
+                Comm.directMessage(sender, receiver, "TEST DIRECT MESSAGE");
+            }
         }
         else if (Input.GetKeyDown(KeyCode.C))
         {
-            Comm.toggleShowInConsole();
+            Comm.toggleShowInUnityConsole();
+        }
+        else if (Input.GetKeyDown(KeyCode.I))
+        {
+            Comm.toggleShowMsgIndicators();
         }
     }
 
