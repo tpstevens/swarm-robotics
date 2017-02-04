@@ -19,9 +19,7 @@ public class RobotCollisionDetection : MonoBehaviour {
     /// <param name="collision"></param>
     private void OnCollisionEnter(Collision collision)
     {
-        // TODO handle collisions with walls while excluding floors
-
-        if (collision.transform.name.StartsWith("Robot"))
+        if (collision.transform.tag != "Ground")
         {
             string name = gameObject.name;
             uint id = uint.Parse(name.Substring(name.LastIndexOf(' ') + 1));

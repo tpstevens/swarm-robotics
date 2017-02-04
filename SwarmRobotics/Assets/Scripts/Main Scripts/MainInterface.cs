@@ -10,7 +10,7 @@ public interface MainInterface
     /// </summary>
     /// <returns>The currently active configuration.</returns>
     Config getCurrentConfig();
-
+    
     /// <summary>
     /// Returns the number of robots.
     /// </summary>

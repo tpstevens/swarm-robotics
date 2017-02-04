@@ -15,7 +15,8 @@ namespace Utilities
         private float commMsgSpeed = 10.0f;
         private float groundLength = 25.0f;
         private float spawnRadius = 5.0f; // applies to both square and circle spawn shapes
-        private int numRobots = 16;
+        private float robotRadarRange = 10.0f;
+        private int numRobots = 1;
         private Vector2 spawnCenter = Vector2.zero;
 
         public bool CommShowInUnityConsole
@@ -58,6 +59,15 @@ namespace Utilities
         {
             get { return numRobots; }
             set { if (value > 0) { numRobots = value; } }
+        }
+
+        /// <summary>
+        /// The range of each robot's radar.
+        /// </summary>
+        public float RobotRadarRange
+        {
+            get { return robotRadarRange; }
+            set { if (value > 0) { robotRadarRange = value; } }
         }
 
         /// <summary>
@@ -146,6 +156,11 @@ namespace Utilities
                                 {
                                     if (!extractInt(sValue, ref numRobots))
                                         Log.w(LogTag.CONFIG, "Invalid number of robots " + sValue);
+                                }
+                                else if (sKey == "radarrange")
+                                {
+                                    if (!extractFloat(sValue, ref robotRadarRange))
+                                        Log.w(LogTag.CONFIG, "Invalid Robot radar range " + sValue);
                                 }
                                 else if (sKey == "spawncenter")
                                 {

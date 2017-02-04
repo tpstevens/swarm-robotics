@@ -113,8 +113,11 @@ public class Main : MonoBehaviour, MainInterface
         // pause/stop the sim, reset the level, etc.
         processUserInput();
 
-        // distribute messages and call each robot's update() function
-        updateSim();
+        if (Time.timeScale > 0.0f)
+        {
+            // distribute messages and call each robot's update() function
+            updateSim();
+        }
     }
 
     private void OnApplicationQuit()
@@ -170,6 +173,9 @@ public class Main : MonoBehaviour, MainInterface
                     Ground.name = "Ground";
                 }
             }
+
+            // Set Ground tag to Ground
+            Ground.tag = "Ground";
 
             // Position and scale ground according to configuration
             Ground.transform.localScale = new Vector3(scaledGroundLength, 
@@ -267,11 +273,11 @@ public class Main : MonoBehaviour, MainInterface
             }
         }
 
-        robots = new Robot[config.NumRobots];
 
         if (config.SpawnShape == Config.eSpawnShape.SQUARE)
         {
             uint numRobotsRoot = (uint)Mathf.Sqrt(config.NumRobots);
+            robots = new Robot[numRobotsRoot * numRobotsRoot];
 
             if (numRobotsRoot == 1)
             {
@@ -281,7 +287,8 @@ public class Main : MonoBehaviour, MainInterface
                 robots[0] = new Robot(0,
                                       Instantiate(RobotPrefab),
                                       position,
-                                      0.0f);
+                                      0.0f,
+                                      config.RobotRadarRange);
             }
             else
             {
@@ -294,14 +301,19 @@ public class Main : MonoBehaviour, MainInterface
                         float z = config.SpawnCenter.y - config.SpawnRadius + j * robotSpacing;
                         uint id = numRobotsRoot * i + j;
                         Vector3 position = new Vector3(x, RobotPrefab.transform.position.y, z);
-                        robots[numRobotsRoot * i + j] = new Robots.Robot(id,
+                        robots[numRobotsRoot * i + j] = new Robot(id,
                                                                   Instantiate(RobotPrefab), 
                                                                   position, 
-                                                                  0.0f);
+                                                                  0.0f,
+                                                                  config.RobotRadarRange);
                     }
                 }
             }
 
+        }
+        else
+        {
+            Log.a(LogTag.MAIN, "Spawn shape must be a square.");
         }
 
         return result;
