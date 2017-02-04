@@ -2,7 +2,7 @@
 using UnityEngine.SceneManagement;
 
 using CommSystem;
-using Robotics;
+using Robots;
 using Utilities;
 
 public class Main : MonoBehaviour, MainInterface
@@ -272,21 +272,36 @@ public class Main : MonoBehaviour, MainInterface
         if (config.SpawnShape == Config.eSpawnShape.SQUARE)
         {
             uint numRobotsRoot = (uint)Mathf.Sqrt(config.NumRobots);
-            float robotSpacing = config.SpawnRadius * 2.0f / (numRobotsRoot - 1);
-            for (uint i = 0; i < numRobotsRoot; ++i)
+
+            if (numRobotsRoot == 1)
             {
-                for (uint j = 0; j < numRobotsRoot; ++j)
+                Vector3 position = config.SpawnCenter;
+                position.y = RobotPrefab.transform.position.y;
+
+                robots[0] = new Robot(0,
+                                      Instantiate(RobotPrefab),
+                                      position,
+                                      0.0f);
+            }
+            else
+            {
+                float robotSpacing = config.SpawnRadius * 2.0f / (numRobotsRoot - 1);
+                for (uint i = 0; i < numRobotsRoot; ++i)
                 {
-                    float x = config.SpawnCenter.x - config.SpawnRadius + i * robotSpacing;
-                    float z = config.SpawnCenter.y - config.SpawnRadius + j * robotSpacing;
-                    uint id = numRobotsRoot * i + j;
-                    Vector3 position = new Vector3(x, RobotPrefab.transform.position.y, z);
-                    robots[numRobotsRoot * i + j] = new Robot(id, 
-                                                              Instantiate(RobotPrefab), 
-                                                              position, 
-                                                              0.0f);
+                    for (uint j = 0; j < numRobotsRoot; ++j)
+                    {
+                        float x = config.SpawnCenter.x - config.SpawnRadius + i * robotSpacing;
+                        float z = config.SpawnCenter.y - config.SpawnRadius + j * robotSpacing;
+                        uint id = numRobotsRoot * i + j;
+                        Vector3 position = new Vector3(x, RobotPrefab.transform.position.y, z);
+                        robots[numRobotsRoot * i + j] = new Robots.Robot(id,
+                                                                  Instantiate(RobotPrefab), 
+                                                                  position, 
+                                                                  0.0f);
+                    }
                 }
             }
+
         }
 
         return result;

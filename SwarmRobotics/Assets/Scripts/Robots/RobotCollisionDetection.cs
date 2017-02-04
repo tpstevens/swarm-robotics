@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class CollisionDetection : MonoBehaviour {
+public class RobotCollisionDetection : MonoBehaviour {
 
     private MainInterface mainScript;
 
