@@ -83,10 +83,10 @@ namespace Robots
                 stateStorageStack_MoveTo.Push(new RobotState.StateStorage_MoveTo(new Vector2(0.0f, 5.0f),
                                                                                  VELOCITY,
                                                                                  0.05f));
-
-                stateStack.Push(RobotState.StateId.SLEEP);
-                stateStorageStack_Sleep.Push(new RobotState.StateStorage_Sleep(2.0f));
             }
+
+            stateStack.Push(RobotState.StateId.SLEEP);
+            stateStorageStack_Sleep.Push(new RobotState.StateStorage_Sleep(2.0f));
 
             body.name = "Robot " + id;
             body.transform.position = startPosition;
@@ -238,7 +238,7 @@ namespace Robots
                 Log.d(LogTag.ROBOT, "Robot " + id + " is moving towards target position " + storage.target);
 
                 // will this cause problems with moving to extremely close positions?
-                Vector3 velocity = Vector3.Normalize(rigidbody.transform.forward) * VELOCITY;
+                Vector3 velocity = Vector3.Normalize(rigidbody.transform.forward) * storage.speed;
                 rigidbody.AddForce(velocity, ForceMode.VelocityChange);
             }
 
@@ -261,6 +261,19 @@ namespace Robots
 
                 stateStack.Pop();
                 stateStorageStack_MoveTo.Pop();
+
+                if (true)
+                {
+                    stateStack.Push(RobotState.StateId.MOVE_TO);
+                    Vector2 target = storage.target == (Vector2.zero) ? new Vector2(0, 5) : Vector2.zero;
+                    stateStorageStack_MoveTo.Push(new RobotState.StateStorage_MoveTo(target, storage.speed, storage.tolerance));
+
+                    stateStack.Push(RobotState.StateId.TURN_TO);
+                    stateStorageStack_TurnTo.Push(new RobotState.StateStorage_TurnTo(storage.target == Vector2.zero ? 0 : 180, 1, 1));
+
+                    stateStack.Push(RobotState.StateId.SLEEP);
+                    stateStorageStack_Sleep.Push(new RobotState.StateStorage_Sleep(2.0f));
+                }
             }
         }
 
@@ -301,12 +314,27 @@ namespace Robots
                 Log.a(LogTag.ROBOT, "Entered stateUpdate_TurnTo() without an associated storage container.");
             }
 
-            // TODO
             bool finished = false;
+            RobotState.StateStorage_TurnTo storage = stateStorageStack_TurnTo.Peek();
+
+            if (!storage.initialized) // initialize when first enter state
+            {
+                storage.initialized = true;
+
+                Log.d(LogTag.ROBOT, "Robot " + id + " is turning towards target angle " + storage.target);
+
+                // TODO: set angular velocity in direction of angle
+                rigidbody.transform.rotation = Quaternion.AngleAxis(storage.target, Vector3.up);
+            }
+
+            // TODO: check how close we are
+            finished = true;
 
             if (finished)
             {
-                
+                // TODO: remove angular velocity
+                stateStack.Pop();
+                stateStorageStack_TurnTo.Pop();
             }
         }
 
