@@ -25,11 +25,12 @@ namespace Robots
         private uint id;
 
         // timers for things (TODO: create timed callback scheduler)
-        private readonly float SENSOR_CHECK_TIME = 1.0f;
-        private float sensorCheckTimer = 0.0f;
+        private readonly float SENSOR_CHECK_TIME = 0.5f;
+        private float sensorCheckTimer;
 
         private Stack<RobotState.StateId> stateStack;
         private Stack<RobotState.StateStorage_MoveTo> stateStorageStack_MoveTo;
+        private Stack<RobotState.StateStorage_Retrieve> stateStorageStack_Retrieve;
         private Stack<RobotState.StateStorage_Sleep> stateStorageStack_Sleep;
         private Stack<RobotState.StateStorage_TurnTo> stateStorageStack_TurnTo;
         private Stack<RobotState.StateStorage_Wait> stateStorageStack_Wait;
@@ -67,8 +68,10 @@ namespace Robots
             unhandledMessages = new Queue<CommMessage>();
             stateStack = new Stack<RobotState.StateId>();
             sensors = new Sensors(radarRange);
+            sensorCheckTimer = 0.02f * (id % 50); // so not all robots check sensors at every frame
 
             stateStorageStack_MoveTo = new Stack<RobotState.StateStorage_MoveTo>();
+            stateStorageStack_Retrieve = new Stack<RobotState.StateStorage_Retrieve>();
             stateStorageStack_Sleep = new Stack<RobotState.StateStorage_Sleep>();
             stateStorageStack_TurnTo = new Stack<RobotState.StateStorage_TurnTo>();
             stateStorageStack_Wait = new Stack<RobotState.StateStorage_Wait>();
@@ -76,13 +79,23 @@ namespace Robots
             stateStack.Push(RobotState.StateId.WAIT);
             stateStorageStack_Wait.Push(new RobotState.StateStorage_Wait());
 
-            // Enable this code to test single robot moving ahead
+            // Enable this code to test object retrieval
             if (true)
             {
-                stateStack.Push(RobotState.StateId.MOVE_TO);
-                stateStorageStack_MoveTo.Push(new RobotState.StateStorage_MoveTo(new Vector2(0.0f, 5.0f),
-                                                                                 VELOCITY,
-                                                                                 0.05f));
+                if (id == 0)
+                {
+                    // Create resource
+                    GameObject resource = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    resource.transform.position = new Vector3(0, 0.5f, 6.1f);
+                    resource.transform.name = "resource";
+                }
+                else
+                {
+                    Log.a(LogTag.ROBOT, "Attempting to test object retrieval with multiple robots.");
+                }
+
+                stateStack.Push(RobotState.StateId.RETRIEVE);
+                stateStorageStack_Retrieve.Push(new RobotState.StateStorage_Retrieve(new Vector2(0.0f, 5.0f)));
             }
 
             stateStack.Push(RobotState.StateId.SLEEP);
@@ -201,6 +214,9 @@ namespace Robots
             case RobotState.StateId.MOVE_TO:
                 stateUpdate_MoveTo();
                 break;
+            case RobotState.StateId.RETRIEVE:
+                stateUpdate_Retrieve();
+                break;
             case RobotState.StateId.SLEEP:
                 stateUpdate_Sleep();
                 break;
@@ -261,19 +277,77 @@ namespace Robots
 
                 stateStack.Pop();
                 stateStorageStack_MoveTo.Pop();
+            }
+        }
 
-                if (true)
+        private void stateUpdate_Retrieve()
+        {
+            if (stateStorageStack_Retrieve.Count <= 0)
+            {
+                Log.a(LogTag.ROBOT,
+                      "Entered stateUpdate_Retrieve() without an associated storage container.");
+            }
+
+            bool finished = false;
+            RobotState.StateStorage_Retrieve storage = stateStorageStack_Retrieve.Peek();
+
+            if (!storage.initialized)
+            {
+                storage.initialized = true;
+
+                stateStack.Push(RobotState.StateId.MOVE_TO);
+                Vector2 target = storage.target;
+                stateStorageStack_MoveTo.Push(new RobotState.StateStorage_MoveTo(target, VELOCITY, 0.05f));
+
+                stateStack.Push(RobotState.StateId.TURN_TO);
+                stateStorageStack_TurnTo.Push(new RobotState.StateStorage_TurnTo(0, 1, 1));
+            }
+
+            if (previousState != RobotState.StateId.RETRIEVE)
+            {
+                Vector2 currentPosition = new Vector2(body.transform.position.x, body.transform.position.z);
+
+                if (currentPosition == storage.target)
                 {
+                    GameObject resource = GameObject.Find("resource");
+                    if (resource != null)
+                    {
+                        resource.transform.position += new Vector3(0, 0.1f, 0);
+                        resource.transform.SetParent(body.transform);
+                        storage.objectRetrieved = true;
+                    }
+                    else
+                    {
+                        Log.a(LogTag.ROBOT, "resource not found");
+                    }
+
                     stateStack.Push(RobotState.StateId.MOVE_TO);
-                    Vector2 target = storage.target == (Vector2.zero) ? new Vector2(0, 5) : Vector2.zero;
-                    stateStorageStack_MoveTo.Push(new RobotState.StateStorage_MoveTo(target, storage.speed, storage.tolerance));
+                    stateStorageStack_MoveTo.Push(new RobotState.StateStorage_MoveTo(Vector2.zero, VELOCITY, 0.05f));
 
                     stateStack.Push(RobotState.StateId.TURN_TO);
-                    stateStorageStack_TurnTo.Push(new RobotState.StateStorage_TurnTo(storage.target == Vector2.zero ? 0 : 180, 1, 1));
-
-                    stateStack.Push(RobotState.StateId.SLEEP);
-                    stateStorageStack_Sleep.Push(new RobotState.StateStorage_Sleep(2.0f));
+                    stateStorageStack_TurnTo.Push(new RobotState.StateStorage_TurnTo(180, 1, 1));
                 }
+                else if (currentPosition == Vector2.zero && storage.objectRetrieved)
+                {
+                    GameObject resource = GameObject.Find("resource");
+                    if (resource != null)
+                    {
+                        resource.transform.position -= new Vector3(0, 0.1f, 0);
+                        resource.transform.SetParent(null);
+                    }
+                    else
+                    {
+                        Log.a(LogTag.ROBOT, "resource not found");
+                    }
+
+                    finished = true;
+                }
+            }
+
+            if (finished)
+            {
+                stateStack.Pop();
+                stateStorageStack_Retrieve.Pop();
             }
         }
 
@@ -382,7 +456,7 @@ namespace Robots
                                     sensors.radarRange))
                 {
                     sensors.radar[i] = hitInfo.distance;
-                    if (PRINT_ROBOT_DETECTION &&  hitInfo.transform.CompareTag("Robot"))
+                    if (PRINT_ROBOT_DETECTION && hitInfo.transform.CompareTag("Robot"))
                     {
                         Log.d(LogTag.ROBOT, "Robot " + id + " detected " + hitInfo.transform.name +
                                             " at heading " + angle + " and distance " + hitInfo.distance);

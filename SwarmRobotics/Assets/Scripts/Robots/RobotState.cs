@@ -7,7 +7,7 @@ namespace Robots
         ////////////////////////////////////////////////////////////////////////
         // State ID Definitions
         ////////////////////////////////////////////////////////////////////////
-        public enum StateId { WAIT, MOVE_TO, SLEEP, TURN_TO };
+        public enum StateId { WAIT, MOVE_TO, RETRIEVE, SLEEP, TURN_TO };
 
         ////////////////////////////////////////////////////////////////////////
         // State Storage Definitions
@@ -40,6 +40,19 @@ namespace Robots
             } 
 
         }
+
+        public class StateStorage_Retrieve
+        {
+            public bool initialized = false;
+            public bool objectRetrieved = false;
+            public Vector2 target;
+
+            public StateStorage_Retrieve(Vector2 target)
+            {
+                this.target = target;
+            }
+        }
+
 
         public class StateStorage_TurnTo
         {
