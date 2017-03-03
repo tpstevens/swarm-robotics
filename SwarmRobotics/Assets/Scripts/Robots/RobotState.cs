@@ -1,89 +1,24 @@
-﻿using UnityEngine;
+﻿using Utilities;
 
 namespace Robots
 {
-    public class RobotState
+    public abstract class RobotState
     {
-        ////////////////////////////////////////////////////////////////////////
-        // State ID Definitions
-        ////////////////////////////////////////////////////////////////////////
-        public enum StateId { WAIT, MOVE_TO, RETRIEVE, SLEEP, TURN_TO };
+        protected bool initialized = false;
+        protected bool resume = false;
 
-        ////////////////////////////////////////////////////////////////////////
-        // State Storage Definitions
-        ////////////////////////////////////////////////////////////////////////
-
-        public class StateStorage_MoveTo
+        /// <summary>
+        /// Inform the state that on the next update() call, it will be on top of the robot's state
+        /// stack. Useful for resetting parameters like movement.
+        /// </summary>
+        public void prepareToResume()
         {
-            public readonly float speed;
-            public readonly float tolerance;
-            public readonly Vector2 target;
-
-            public bool initialized = false;
-
-            public StateStorage_MoveTo(Vector2 target, float speed, float tolerance)
-            {
-                this.speed = speed;
-                this.target = target;
-                this.tolerance = tolerance;
-            }
+            if (resume)
+                Log.a(LogTag.ROBOT, "Attempting to resume a state that is not waiting to resume!");
+            else
+                resume = initialized; // don't resume if not even initialized
         }
 
-        public class StateStorage_Sleep
-        {
-            public bool initialized = false;
-            public float timer;
-
-            public StateStorage_Sleep(float timer)
-            {
-                this.timer = timer;
-            } 
-
-        }
-
-        public class StateStorage_Retrieve
-        {
-            public bool initialized = false;
-            public bool objectRetrieved = false;
-            public Vector2 target;
-
-            public StateStorage_Retrieve(Vector2 target)
-            {
-                this.target = target;
-            }
-        }
-
-
-        public class StateStorage_TurnTo
-        {
-            public readonly float speed;
-            public readonly float target;
-            public readonly float tolerance;
-
-            public bool initialized = false;
-
-            public StateStorage_TurnTo(float target, float speed, float tolerance)
-            {
-                this.speed = speed;
-                this.target = target;
-                this.tolerance = tolerance;
-            }
-        }
-        public class StateStorage_Wait
-        {
-            public readonly string args;
-
-            public bool initialized = false;
-
-            public StateStorage_Wait()
-            {
-                // Does None really need a state variable? We could track statistics about how long
-                // things remain stationery...
-            }
-        }
+        public abstract void update(Robot r);
     }
 }
-
-/**
- * Create StateStorage_<state ID> as a subclass of StateStorage?
- */

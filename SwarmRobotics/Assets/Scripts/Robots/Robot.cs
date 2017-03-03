@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 
+using System;
 using System.Collections.Generic;
 
 using CommSystem;
@@ -7,51 +8,24 @@ using Utilities;
 
 namespace Robots
 {
-    public class Robot {
-
+    public class Robot
+    {
+        // TODO: does exposing these break encapsulation?
         public GameObject body;
+        public Queue<CommMessage> unhandledMessages;
+        public Rigidbody rigidbody;
+        private RobotSensors sensors;
 
         private readonly bool PRINT_ROBOT_DETECTION = false; // TODO move to config file, default false
-
         private readonly float COLLISION_NOTIFICATION_TIME = 1.0f;
+        private readonly float SENSOR_CHECK_TIME = 0.5f;
         private readonly float VELOCITY = 2.0f;
+        public readonly uint id;
 
         private bool collided = false;
         private float collisionNotificationTimer = 0.0f;
-        private Queue<CommMessage> unhandledMessages;
-        private Rigidbody rigidbody;
-        private RobotState.StateId previousState;
-        private Sensors sensors;
-        private uint id;
-
-        // timers for things (TODO: create timed callback scheduler)
-        private readonly float SENSOR_CHECK_TIME = 0.5f;
-        private float sensorCheckTimer;
-
-        private Stack<RobotState.StateId> stateStack;
-        private Stack<RobotState.StateStorage_MoveTo> stateStorageStack_MoveTo;
-        private Stack<RobotState.StateStorage_Retrieve> stateStorageStack_Retrieve;
-        private Stack<RobotState.StateStorage_Sleep> stateStorageStack_Sleep;
-        private Stack<RobotState.StateStorage_TurnTo> stateStorageStack_TurnTo;
-        private Stack<RobotState.StateStorage_Wait> stateStorageStack_Wait;
-
-        private class Sensors
-        {
-            public readonly float radarRange;
-
-            public float currentAngleOffset = 0.0f;
-
-            /// <summary>
-            /// Distances to closest object within radar range in as many directions as there are
-            /// spaces in this array. If no object is found, the distance will be -1.
-            /// </summary>
-            public float[] radar = new float[32];
-
-            public Sensors(float radarRange)
-            {
-                this.radarRange = radarRange;
-            }
-        }
+        private float sensorCheckTimer; // timers for things (TODO: create timed callback scheduler)
+        private Stack<RobotState> stateStack;
 
         /// <summary>
         /// Constructs a Robot object and assigns the Robot header object as its parent, if found.
@@ -66,40 +40,18 @@ namespace Robots
             this.id = id;
 
             unhandledMessages = new Queue<CommMessage>();
-            stateStack = new Stack<RobotState.StateId>();
-            sensors = new Sensors(radarRange);
+            stateStack = new Stack<RobotState>();
+            sensors = new RobotSensors(radarRange);
             sensorCheckTimer = 0.02f * (id % 50); // so not all robots check sensors at every frame
 
-            stateStorageStack_MoveTo = new Stack<RobotState.StateStorage_MoveTo>();
-            stateStorageStack_Retrieve = new Stack<RobotState.StateStorage_Retrieve>();
-            stateStorageStack_Sleep = new Stack<RobotState.StateStorage_Sleep>();
-            stateStorageStack_TurnTo = new Stack<RobotState.StateStorage_TurnTo>();
-            stateStorageStack_Wait = new Stack<RobotState.StateStorage_Wait>();
+            stateStack.Push(new RobotStateWait());
 
-            stateStack.Push(RobotState.StateId.WAIT);
-            stateStorageStack_Wait.Push(new RobotState.StateStorage_Wait());
-
-            // Enable this code to test object retrieval
-            if (true)
+            // Insert other states here to test without waiting for satellite
             {
-                if (id == 0)
-                {
-                    // Create resource
-                    GameObject resource = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    resource.transform.position = new Vector3(0, 0.5f, 6.1f);
-                    resource.transform.name = "resource";
-                }
-                else
-                {
-                    Log.a(LogTag.ROBOT, "Attempting to test object retrieval with multiple robots.");
-                }
-
-                stateStack.Push(RobotState.StateId.RETRIEVE);
-                stateStorageStack_Retrieve.Push(new RobotState.StateStorage_Retrieve(new Vector2(0.0f, 5.0f)));
+                
             }
 
-            stateStack.Push(RobotState.StateId.SLEEP);
-            stateStorageStack_Sleep.Push(new RobotState.StateStorage_Sleep(2.0f));
+            stateStack.Push(new RobotStateSleep(1.0f)); // allow robots time to fall to ground
 
             body.name = "Robot " + id;
             body.transform.position = startPosition;
@@ -129,12 +81,53 @@ namespace Robots
         }
 
         /// <summary>
+        /// Immediately updates all the robot's sensors. Does not reset sensor check timer.
+        /// </summary>
+        /// <returns>The robot's sensor array.</returns>
+        public RobotSensors checkSensors()
+        {
+            detectRadar(0.0f);
+            return sensors;
+        }
+
+        public float getOrientation()
+        {
+            return Vector3.Angle(Vector3.forward, rigidbody.transform.forward);
+        }
+
+        /// <summary>
         /// Notify the robot that it has collided with another. The collision should be handled
         /// inside the update() function, not here.
         /// </summary>
         public void notifyCollision()
         {
             collided = true;
+        }
+
+        /// <summary>
+        /// Used in RobotState.update() to pop states off the stack when they're finished.
+        /// Breaks encapsulation?
+        /// </summary>
+        public void popState()
+        {
+            if (stateStack.Count == 0)
+                Log.a(LogTag.ROBOT, "Attempting to pop state off an empty stack!");
+
+            stateStack.Pop();
+            
+            if (stateStack.Count == 0)
+                Log.a(LogTag.ROBOT, "Robot " + id + " is currently stateless");
+
+            stateStack.Peek().prepareToResume();
+        }
+
+        /// <summary>
+        /// Used in RobotState.update() to push new states onto the stack.
+        /// Breaks encapsulation?
+        /// </summary>
+        public void pushState(RobotState state)
+        {
+            stateStack.Push(state);
         }
 
         /// <summary>
@@ -181,11 +174,16 @@ namespace Robots
                 }
             }
 
-            stateUpdate();
+            // Perform the state-specific update function that corresponds with the current state.
+            if (stateStack.Count == 0)
+                Log.a(LogTag.ROBOT, "Robot " + id + " is currently stateless");
+            else
+                stateStack.Peek().update(this);
         }
 
         /// <summary>
         /// Process the queue of unhandled messages.
+        /// TODO: Move to state update!!!
         /// </summary>
         private void handleMessages()
         {
@@ -198,244 +196,9 @@ namespace Robots
             }
         }
 
-        /// <summary>
-        /// Perform the state-specific update function that corresponds with the current state.
-        /// </summary>
-        private void stateUpdate()
-        {
-            if (stateStack.Count == 0)
-            {
-                Log.a(LogTag.ROBOT, "Robot " + id + " is currently stateless");
-            }
-
-            RobotState.StateId currentState = stateStack.Peek();
-
-            switch (currentState) {
-            case RobotState.StateId.MOVE_TO:
-                stateUpdate_MoveTo();
-                break;
-            case RobotState.StateId.RETRIEVE:
-                stateUpdate_Retrieve();
-                break;
-            case RobotState.StateId.SLEEP:
-                stateUpdate_Sleep();
-                break;
-            case RobotState.StateId.TURN_TO:
-                stateUpdate_TurnTo();
-                break;
-            case RobotState.StateId.WAIT:
-                stateUpdate_Wait();
-                break;
-            default:
-                break;
-            }
-
-            previousState = currentState;
-        }
-
-        ////////////////////////////////////////////////////////////////////////
-        // Private State Functions (TODO: add checks for nothing on storage stack)
-        ////////////////////////////////////////////////////////////////////////
-        private void stateUpdate_MoveTo()
-        {
-            if (stateStorageStack_MoveTo.Count <= 0)
-            {
-                Log.a(LogTag.ROBOT,
-                      "Entered stateUpdate_MoveTo() without an associated storage container.");
-            }
-
-            bool finished = false;
-            RobotState.StateStorage_MoveTo storage = stateStorageStack_MoveTo.Peek();
-
-            if (!storage.initialized) // initialize when first enter state
-            {
-                storage.initialized = true;
-
-                Log.d(LogTag.ROBOT, "Robot " + id + " is moving towards target position " + storage.target);
-
-                // will this cause problems with moving to extremely close positions?
-                Vector3 velocity = Vector3.Normalize(rigidbody.transform.forward) * storage.speed;
-                rigidbody.AddForce(velocity, ForceMode.VelocityChange);
-            }
-
-            // TODO: check if we're getting close and slow down
-
-            Vector2 position2d = new Vector2(body.transform.position.x,
-                                             body.transform.position.z);
-            if (Vector2.Distance(position2d, storage.target) <= storage.tolerance)
-            {
-                finished = true;
-            }
-
-            if (finished) // "clean up"
-            {
-                Log.d(LogTag.ROBOT, "Robot " + id + " has reached target position " + storage.target);
-                body.transform.position = new Vector3(storage.target.x, body.transform.position.y, storage.target.y);
-
-                // end state and pop off the stack
-                rigidbody.AddForce(-1 * rigidbody.velocity, ForceMode.VelocityChange);
-
-                stateStack.Pop();
-                stateStorageStack_MoveTo.Pop();
-            }
-        }
-
-        private void stateUpdate_Retrieve()
-        {
-            if (stateStorageStack_Retrieve.Count <= 0)
-            {
-                Log.a(LogTag.ROBOT,
-                      "Entered stateUpdate_Retrieve() without an associated storage container.");
-            }
-
-            bool finished = false;
-            RobotState.StateStorage_Retrieve storage = stateStorageStack_Retrieve.Peek();
-
-            if (!storage.initialized)
-            {
-                storage.initialized = true;
-
-                stateStack.Push(RobotState.StateId.MOVE_TO);
-                Vector2 target = storage.target;
-                stateStorageStack_MoveTo.Push(new RobotState.StateStorage_MoveTo(target, VELOCITY, 0.05f));
-
-                stateStack.Push(RobotState.StateId.TURN_TO);
-                stateStorageStack_TurnTo.Push(new RobotState.StateStorage_TurnTo(0, 1, 1));
-            }
-
-            if (previousState != RobotState.StateId.RETRIEVE)
-            {
-                Vector2 currentPosition = new Vector2(body.transform.position.x, body.transform.position.z);
-
-                if (currentPosition == storage.target)
-                {
-                    GameObject resource = GameObject.Find("resource");
-                    if (resource != null)
-                    {
-                        resource.transform.position += new Vector3(0, 0.1f, 0);
-                        resource.transform.SetParent(body.transform);
-                        storage.objectRetrieved = true;
-                    }
-                    else
-                    {
-                        Log.a(LogTag.ROBOT, "resource not found");
-                    }
-
-                    stateStack.Push(RobotState.StateId.MOVE_TO);
-                    stateStorageStack_MoveTo.Push(new RobotState.StateStorage_MoveTo(Vector2.zero, VELOCITY, 0.05f));
-
-                    stateStack.Push(RobotState.StateId.TURN_TO);
-                    stateStorageStack_TurnTo.Push(new RobotState.StateStorage_TurnTo(180, 1, 1));
-                }
-                else if (currentPosition == Vector2.zero && storage.objectRetrieved)
-                {
-                    GameObject resource = GameObject.Find("resource");
-                    if (resource != null)
-                    {
-                        resource.transform.position -= new Vector3(0, 0.1f, 0);
-                        resource.transform.SetParent(null);
-                    }
-                    else
-                    {
-                        Log.a(LogTag.ROBOT, "resource not found");
-                    }
-
-                    finished = true;
-                }
-            }
-
-            if (finished)
-            {
-                stateStack.Pop();
-                stateStorageStack_Retrieve.Pop();
-            }
-        }
-
-        private void stateUpdate_Sleep()
-        {
-            if (stateStorageStack_Sleep.Count <= 0)
-            {
-                Log.a(LogTag.ROBOT, 
-                      "Entered stateUpdate_Sleep() without an associated storage container.");
-            }
-
-            bool finished = false;
-            RobotState.StateStorage_Sleep storage = stateStorageStack_Sleep.Peek();
-
-            if (!storage.initialized)
-            {
-                storage.initialized = true;
-                Log.d(LogTag.ROBOT, "Robot " + id + " started sleeping for " + storage.timer + " seconds");
-            }
-
-            storage.timer -= Time.deltaTime;
-            if (storage.timer <= 0.0f)
-                finished = true;
-
-            if (finished)
-            {
-                Log.d(LogTag.ROBOT, "Robot " + id + " has finished sleeping");
-
-                stateStack.Pop();
-                stateStorageStack_Sleep.Pop();
-            }
-        }
-
-        private void stateUpdate_TurnTo()
-        {
-            if (stateStorageStack_TurnTo.Count <= 0)
-            {
-                Log.a(LogTag.ROBOT, "Entered stateUpdate_TurnTo() without an associated storage container.");
-            }
-
-            bool finished = false;
-            RobotState.StateStorage_TurnTo storage = stateStorageStack_TurnTo.Peek();
-
-            if (!storage.initialized) // initialize when first enter state
-            {
-                storage.initialized = true;
-
-                Log.d(LogTag.ROBOT, "Robot " + id + " is turning towards target angle " + storage.target);
-
-                // TODO: set angular velocity in direction of angle
-                rigidbody.transform.rotation = Quaternion.AngleAxis(storage.target, Vector3.up);
-            }
-
-            // TODO: check how close we are
-            finished = true;
-
-            if (finished)
-            {
-                // TODO: remove angular velocity
-                stateStack.Pop();
-                stateStorageStack_TurnTo.Pop();
-            }
-        }
-
-        private void stateUpdate_Wait()
-        {
-            if (stateStorageStack_Wait.Count <= 0)
-            {
-                Log.a(LogTag.ROBOT, "Entered stateUpdate_Wait() without an associated storage container.");
-            }
-
-            if (previousState != RobotState.StateId.WAIT)
-            {
-                Log.d(LogTag.ROBOT, "Robot " + id + " is waiting");
-            }
-
-            // TODO process messages? what goes here? Could add some sort of base update that happens 
-            // (checking messages, checking for collisions, etc)
-        }
-
         ////////////////////////////////////////////////////////////////////////
         // Private Sensor Functions
         ////////////////////////////////////////////////////////////////////////
-        private void checkSensors()
-        {
-            detectRadar(0.0f);
-        }
-
         private void detectRadar(float radialOffset)
         {
             if (sensors == null)
@@ -450,9 +213,9 @@ namespace Robots
             {
                 float angle = i * radialDivision + radialOffset;
                 raycastDirection = Quaternion.Euler(0, angle, 0) * body.transform.forward;
-                if (Physics.Raycast(body.transform.position, 
-                                    raycastDirection, 
-                                    out hitInfo, 
+                if (Physics.Raycast(body.transform.position,
+                                    raycastDirection,
+                                    out hitInfo,
                                     sensors.radarRange))
                 {
                     sensors.radar[i] = hitInfo.distance;
