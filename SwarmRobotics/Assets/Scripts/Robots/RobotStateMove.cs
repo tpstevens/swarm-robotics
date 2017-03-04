@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.AI;
+
 using Utilities;
 
 namespace Robots
@@ -7,16 +8,15 @@ namespace Robots
     public class RobotStateMove : RobotState
     {
         private readonly float speed;
-        private readonly float tolerance = 0.05f;
-        private readonly Vector2 targetPosition;
+        private readonly float tolerance = 0.01f;
+        private readonly Vector3 targetPosition;
 
         private NavMeshAgent robotAgent;
-        private Vector3 targetPosition3d;
 
         public RobotStateMove(Vector2 targetPosition, float speed)
         {
             this.speed = speed;
-            this.targetPosition = targetPosition;
+            this.targetPosition = new Vector3(targetPosition.x, 0, targetPosition.y);
         }
 
         /// <summary>
@@ -33,14 +33,7 @@ namespace Robots
             if (!initialized)
             {
                 initialized = true;
-                targetPosition3d = new Vector3(targetPosition.x, r.body.transform.position.y, targetPosition.y);
-
-                robotAgent = r.body.GetComponent<NavMeshAgent>();
-                if (robotAgent == null)
-                {
-                    Log.a(LogTag.ROBOT, "Robot " + r.id + " does not have attached NavMeshAgent");
-                    finished = true;
-                }
+                resume = true;
             }
 
             ////////////////////////////////////////////////////////////////////////////////////////
@@ -49,20 +42,28 @@ namespace Robots
             if (resume)
             {
                 resume = false;
+
+                robotAgent = r.body.GetComponent<NavMeshAgent>();
+                if (robotAgent == null)
+                {
+                    Log.a(LogTag.ROBOT, "Robot " + r.id + " does not have attached NavMeshAgent");
+                    return;
+                }
+                else
+                {
+                    robotAgent.SetDestination(targetPosition);
+                    robotAgent.avoidancePriority = 50;
+                }
             }
 
             ////////////////////////////////////////////////////////////////////////////////////////
             // Update: check if robot has reached its destination (within specified tolerance)
             ////////////////////////////////////////////////////////////////////////////////////////
-            if (robotAgent != null)
-                robotAgent.SetDestination(targetPosition3d);
-
-            Vector2 position2d = new Vector2(r.body.transform.position.x, r.body.transform.position.z);
-            if (Vector2.Distance(position2d, targetPosition) <= tolerance)
+            if (!robotAgent.pathPending && robotAgent.remainingDistance < tolerance)
                 finished = true;
 
             ////////////////////////////////////////////////////////////////////////////////////////
-            // Process messages: TODO
+            // Process messages: no, should be handled in other states
             ////////////////////////////////////////////////////////////////////////////////////////
 
             ////////////////////////////////////////////////////////////////////////////////////////
@@ -71,13 +72,9 @@ namespace Robots
             if (finished)
             {
                 Log.d(LogTag.ROBOT, "Robot " + r.id + " has reached target position " + targetPosition);
-                
-                // Move robot onto the position exactly and reset its velocity
-                r.body.transform.position = new Vector3(targetPosition.x, 
-                                                        r.body.transform.position.y, 
-                                                        targetPosition.y);
-                r.body.GetComponent<Rigidbody>().AddForce(-1 * r.rigidbody.velocity, 
-                                                          ForceMode.VelocityChange);
+
+                // Other robots must navigate around it
+                robotAgent.avoidancePriority = 0;
 
                 // Pop state off the stack
                 r.popState();
