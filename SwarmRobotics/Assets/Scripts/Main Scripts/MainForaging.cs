@@ -280,6 +280,7 @@ public class MainForaging : MonoBehaviour, MainInterface
                         uint id = i * numResourcesRoot1 + j;
                         GameObject resource = GameObject.CreatePrimitive(PrimitiveType.Cube);
                         resource.transform.name = "Resource " + id;
+                        resource.transform.parent = EnvironmentObjects.transform;
                         resource.transform.position = new Vector3(x, 0.5f, z);
                         Resources[numResourcesRoot1 * i + j] = resource;
 
@@ -315,6 +316,7 @@ public class MainForaging : MonoBehaviour, MainInterface
                         uint id = i * numResourcesRoot2 + j;
                         GameObject resource = GameObject.CreatePrimitive(PrimitiveType.Cube);
                         resource.transform.name = "Resource " + id;
+                        resource.transform.parent = EnvironmentObjects.transform;
                         resource.transform.position = new Vector3(x, 0.5f, z);
                         Resources[numResourcesRoot2 * i + j] = resource;
 
