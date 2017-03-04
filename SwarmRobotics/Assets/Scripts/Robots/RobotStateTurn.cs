@@ -6,11 +6,11 @@ namespace Robots
 {
     public class RobotStateTurn : RobotState
     {
-        private readonly float targetAngle;
+        private readonly Vector2 targetPosition;
 
-        public RobotStateTurn(float targetAngle)
+        public RobotStateTurn(Vector2 targetPosition)
         {
-            this.targetAngle = targetAngle;
+            this.targetPosition = targetPosition;
         }
 
         /// <summary>
@@ -36,19 +36,17 @@ namespace Robots
             if (resume)
             {
                 resume = false;
-                Log.d(LogTag.ROBOT, "TURN Robot " + r.id + " is turning towards target angle " + targetAngle);
+                Log.d(LogTag.ROBOT, "TURN Robot " + r.id + " is turning towards target position " + targetPosition);
 
                 // Turn instantaneously
-                r.rigidbody.transform.rotation = Quaternion.AngleAxis(targetAngle, Vector3.up);
+                Vector3 target = new Vector3(targetPosition.x, r.rigidbody.transform.position.y, targetPosition.y);
+                r.rigidbody.transform.rotation = Quaternion.LookRotation(target, Vector3.up);
+                finished = true;
             }
 
             ////////////////////////////////////////////////////////////////////////////////////////
-            // Update: check if robot has reached its target angle
+            // Update: no, already reached target angle
             ////////////////////////////////////////////////////////////////////////////////////////
-            if (Mathf.Abs(r.getOrientation() - targetAngle) < 0.0001f)
-                finished = true;
-            else
-                Log.e(LogTag.ROBOT, "TURN current = " + r.getOrientation() + ", target = " + targetAngle);
 
             ////////////////////////////////////////////////////////////////////////////////////////
             // Process messages: no, should happen in another state
@@ -59,8 +57,6 @@ namespace Robots
             ////////////////////////////////////////////////////////////////////////////////////////
             if (finished)
             {
-                Log.d(LogTag.ROBOT, "TURN Robot " + r.id + " has reached target angle " + targetAngle);
-
                 // Pop state off the stack
                 r.popState();
             }

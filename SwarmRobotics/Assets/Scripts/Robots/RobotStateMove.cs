@@ -42,8 +42,12 @@ namespace Robots
 
                 Log.e(LogTag.ROBOT, "MOVE target = " + targetPosition);
 
+                Vector3 target3dPosition = new Vector3(targetPosition.x, r.rigidbody.transform.position.y, targetPosition.y);
+                Vector3 lookDirection = target3dPosition - r.rigidbody.transform.position;
+                r.rigidbody.transform.rotation = Quaternion.LookRotation(lookDirection, Vector3.up);
+
                 // Will this cause problems with moving to extremely close positions?
-                Vector3 velocity = Vector3.Normalize(r.rigidbody.transform.forward) * speed;
+                Vector3 velocity = Vector3.Normalize(lookDirection) * speed;
                 r.body.GetComponent<Rigidbody>().AddForce(velocity, ForceMode.VelocityChange);
             }
 
