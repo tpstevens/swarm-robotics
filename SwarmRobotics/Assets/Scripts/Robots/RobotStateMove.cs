@@ -9,9 +9,9 @@ namespace Robots
     {
         private readonly float speed;
         private readonly float tolerance = 0.01f;
-        private readonly Vector3 targetPosition;
 
         private NavMeshAgent robotAgent;
+        private Vector3 targetPosition;
 
         public RobotStateMove(Vector2 targetPosition, float speed)
         {
@@ -34,6 +34,8 @@ namespace Robots
             {
                 initialized = true;
                 resume = true;
+
+                targetPosition.y = r.body.transform.position.y;
             }
 
             ////////////////////////////////////////////////////////////////////////////////////////
@@ -59,8 +61,20 @@ namespace Robots
             ////////////////////////////////////////////////////////////////////////////////////////
             // Update: check if robot has reached its destination (within specified tolerance)
             ////////////////////////////////////////////////////////////////////////////////////////
-            if (!robotAgent.pathPending && robotAgent.remainingDistance < tolerance)
-                finished = true;
+            if (!robotAgent.pathPending && robotAgent.remainingDistance == 0)
+            {
+                if (Vector3.Distance(targetPosition, r.body.transform.position) < tolerance)
+                {
+                    finished = true;
+                }
+                else
+                {
+                    Log.d(LogTag.ROBOT, "Robot " + r.id + " cannot reach its destination. Waiting for path to open up.");
+                    robotAgent.SetDestination(targetPosition);
+                    r.pushState(new RobotStateSleep(1.0f));
+                }
+            }
+
 
             ////////////////////////////////////////////////////////////////////////////////////////
             // Process messages: no, should be handled in other states
