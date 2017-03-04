@@ -11,7 +11,7 @@ groundLength = 25.0
 radarRange = 25.0
 
 # Spawn Parameters
-numRobots   = 4
+numRobots   = 1
 spawnCenter = {0.0, 0.0}
 spawnRadius = 5.0
 spawnShape  = square

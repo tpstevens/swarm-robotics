@@ -1,4 +1,7 @@
-﻿using Utilities;
+﻿using UnityEngine;
+
+using CommSystem;
+using Utilities;
 
 namespace Robots
 {
@@ -42,6 +45,28 @@ namespace Robots
             ////////////////////////////////////////////////////////////////////////////////////////
             // Process messages: TODO
             ////////////////////////////////////////////////////////////////////////////////////////
+            while (r.unhandledMessages.Count > 0)
+            {
+                CommMessage msg = r.unhandledMessages.Dequeue();
+                if (msg.senderId == Comm.SATELLITE)
+                {
+                    if (msg.text == "test")
+                    {
+                        Log.w(LogTag.ROBOT, "Robot " + r.id + " performing test.");
+                        r.pushState(new RobotStateMove(Vector2.zero, r.VELOCITY));
+                        r.pushState(new RobotStateSleep(0.5f));
+                        r.pushState(new RobotStateMove(new Vector2(0, 5), r.VELOCITY));
+                    }
+                    else
+                    {
+                        Log.w(LogTag.ROBOT, "Robot " + r.id + " processed unknown message " + msg.text + " from " + msg.senderId);
+                    }
+                }
+                else
+                {
+                    Log.w(LogTag.ROBOT, "Robot " + r.id + " processed unknown message " + msg.text + " from " + msg.senderId);
+                }
+            }
 
             ////////////////////////////////////////////////////////////////////////////////////////
             // "Clean up" robot state

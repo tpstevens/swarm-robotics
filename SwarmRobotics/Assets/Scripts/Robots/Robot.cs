@@ -10,6 +10,8 @@ namespace Robots
 {
     public class Robot
     {
+        public readonly float VELOCITY = 2.0f;
+        
         // TODO: does exposing these break encapsulation?
         public GameObject body;
         public Queue<CommMessage> unhandledMessages;
@@ -19,7 +21,6 @@ namespace Robots
         private readonly bool PRINT_ROBOT_DETECTION = false; // TODO move to config file, default false
         private readonly float COLLISION_NOTIFICATION_TIME = 1.0f;
         private readonly float SENSOR_CHECK_TIME = 0.5f;
-        private readonly float VELOCITY = 2.0f;
         public readonly uint id;
 
         private bool collided = false;
@@ -145,8 +146,6 @@ namespace Robots
         /// </summary>
         public void update()
         {
-            handleMessages();
-
             sensorCheckTimer -= Time.deltaTime;
             if (sensorCheckTimer <= 0.0f)
             {
@@ -179,21 +178,6 @@ namespace Robots
                 Log.a(LogTag.ROBOT, "Robot " + id + " is currently stateless");
             else
                 stateStack.Peek().update(this);
-        }
-
-        /// <summary>
-        /// Process the queue of unhandled messages.
-        /// TODO: Move to state update!!!
-        /// </summary>
-        private void handleMessages()
-        {
-            CommMessage msg;
-
-            while (unhandledMessages.Count > 0)
-            {
-                // TODO: process messages
-                msg = unhandledMessages.Dequeue();
-            }
         }
 
         ////////////////////////////////////////////////////////////////////////
