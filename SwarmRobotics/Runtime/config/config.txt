@@ -1,6 +1,6 @@
 # Comm Parameters
 msgSpeed           = 10.0
-msgDistanceLimit   = 25.0
+msgDistanceLimit   = 128.0
 commShowInUnityConsole = true
 commShowMsgIndicator   = true
 

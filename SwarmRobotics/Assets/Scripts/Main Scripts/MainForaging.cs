@@ -389,8 +389,9 @@ public class MainForaging : MonoBehaviour, MainInterface
 
             if (numRobotsRoot == 1)
             {
-                Vector3 position = config.SpawnCenter;
-                position.y = RobotPrefab.transform.position.y;
+                Vector3 position = new Vector3(config.SpawnCenter.x,
+                                               RobotPrefab.transform.position.y,
+                                               config.SpawnCenter.y);
 
                 robots[0] = new Robot(0,
                                       Instantiate(RobotPrefab),
