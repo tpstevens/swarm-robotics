@@ -242,9 +242,6 @@ public class Main : MonoBehaviour, MainInterface
                                                        config.GroundLength / -2.0f - 0.05f);
             negativeZ.transform.parent = EnvironmentObjects.transform;
 
-            // Add resources
-            ResourceFactory.createResourcePatch(9, 0, new Vector2(0, 5), 0.5f, 0.5f, Color.gray);
-
             // Create satellite
             GameObject satelliteBody = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             satelliteBody.tag = "Satellite";
