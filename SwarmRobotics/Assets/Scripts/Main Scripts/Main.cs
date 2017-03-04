@@ -13,6 +13,7 @@ public class Main : MonoBehaviour, MainInterface
     public GameObject RobotObjects;
     public GameObject RobotPrefab;
     public GameObject MessageIndicatorPrefab;
+    private Satellite Satellite;
 
     private Config currentConfig;
     private Robot[] robots;
@@ -64,6 +65,27 @@ public class Main : MonoBehaviour, MainInterface
     }
 
     /// <summary>
+    /// Get the current position of the satellite.
+    /// </summary>
+    /// <returns>Whether the position was successfully assigned.</returns>
+    public bool getSatellitePosition(out Vector3 position)
+    {
+        bool result = false;
+
+        if (Satellite != null && Satellite.body != null)
+        {
+            position = Satellite.body.transform.position;
+            result = true;
+        }
+        else
+        {
+            position = Vector3.zero;
+        }
+
+        return result;
+    }
+
+    /// <summary>
     /// Notify a robot that it has collided with another.
     /// </summary>
     /// <param name="robotId">The id of the robot that collided.</param>
@@ -74,13 +96,16 @@ public class Main : MonoBehaviour, MainInterface
     }
 
     /// <summary>
-    /// Notify a robot that it has received a message.
+    /// Notify an actor that it has received a message.
     /// </summary>
-    /// <param name="robotId">The recipient's ID.</param>
+    /// <param name="receiverId">The receiver's ID.</param>
     /// <param name="msg">The message.</param>
-    public void notifyMessage(uint robotId, CommMessage msg)
+    public void notifyMessage(uint receiverId, CommMessage msg)
     {
-        robots[robotId].queueMessage(msg);
+        if (receiverId == Comm.SATELLITE)
+            Satellite.queueMessage(msg);
+        else
+            robots[receiverId].queueMessage(msg);
     }
 
     /// <summary>
@@ -216,6 +241,15 @@ public class Main : MonoBehaviour, MainInterface
                                                        0.125f, 
                                                        config.GroundLength / -2.0f - 0.05f);
             negativeZ.transform.parent = EnvironmentObjects.transform;
+
+            // Create satellite
+            GameObject satelliteBody = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            satelliteBody.tag = "Satellite";
+            satelliteBody.name = "Satellite";
+            satelliteBody.transform.parent = EnvironmentObjects.transform;
+            satelliteBody.transform.position = new Vector3(0, 15, 0);
+
+            Satellite = new Satellite(satelliteBody);
         }
 
         return result;
@@ -361,6 +395,10 @@ public class Main : MonoBehaviour, MainInterface
         {
             Comm.toggleShowMsgIndicators();
         }
+        else if (Input.GetKeyDown(KeyCode.S))
+        {
+            Satellite.broadcastMessage("test message");
+        }
     }
 
     /// <summary>
@@ -389,6 +427,7 @@ public class Main : MonoBehaviour, MainInterface
     private void updateSim()
     {
         Comm.update(Time.deltaTime);
+        Satellite.update();
 
         for (int i = 0; i < robots.Length; ++i)
             robots[i].update();

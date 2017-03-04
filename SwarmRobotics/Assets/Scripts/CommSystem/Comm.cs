@@ -8,6 +8,7 @@ namespace CommSystem
 {
     public class Comm
     {
+        public static readonly uint SATELLITE = uint.MaxValue - 1;
         public static readonly uint RECEIVER_ALL = uint.MaxValue; // default receiver for broadcasts
 
         // Instance variable and mutex
@@ -20,6 +21,7 @@ namespace CommSystem
         private readonly float MSG_SPEED;        // message propagation speed, in m/s
         private bool showInUnityConsole;         // whether message send events appear in Unity console
         private bool showMsgIndicators;          // whether message indicators are rendered
+        private int maxNumRobots;                // maximum number of robots a message could reach
 
         // Private cached objects
         private readonly GameObject msgIndicatorTemplate; // template for message indicators
@@ -56,14 +58,29 @@ namespace CommSystem
 
         public static void broadcastMessage(uint senderId, uint channel, string tag, string text)
         {
+            bool validSenderPosition = true;
             Comm comm = Instance();
             Vector3 msgOrigin;
 
-            if (comm.mainScript.getRobotPosition(senderId, out msgOrigin))
+            if (senderId == SATELLITE)
+            {
+                if (!comm.mainScript.getSatellitePosition(out msgOrigin))
+                {
+                    Log.e(LogTag.COMM, "Failed to get satellite's position.");
+                    validSenderPosition = false;
+                }
+            }
+            else if (!comm.mainScript.getRobotPosition(senderId, out msgOrigin))
+            {
+                Log.e(LogTag.COMM, "Failed to get Robot " + senderId + "'s position.");
+                validSenderPosition = false;
+            }
+
+            if (validSenderPosition)
             {
                 uint msgId = comm.nextMsgId++;
-                CommMessage msg = new CommMessage(msgId, senderId, 
-                                                  channel, tag, 
+                CommMessage msg = new CommMessage(msgId, senderId,
+                                                  channel, tag,
                                                   msgOrigin, comm.MSG_DIST_LIMIT, comm.MSG_SPEED,
                                                   text);
                 GameObject msgIndicator = comm.instantiateMsgIndicator(msg);
@@ -73,18 +90,29 @@ namespace CommSystem
 
                 Log.d(LogTag.COMM, msg.ToString(), comm.showInUnityConsole);
             }
-            else
-            {
-                Log.e(LogTag.COMM, "Failed to get Robot " + senderId + "'s position.");
-            }
         }
 
         public static void directMessage(uint senderId, uint receiverId, string text)
         {
+            bool validSenderPosition = true;
             Comm comm = Instance();
             Vector3 msgOrigin;
 
-            if (comm.mainScript.getRobotPosition(senderId, out msgOrigin))
+            if (senderId == SATELLITE)
+            {
+                if (!comm.mainScript.getSatellitePosition(out msgOrigin))
+                {
+                    Log.e(LogTag.COMM, "Failed to get satellite's position.");
+                    validSenderPosition = false;
+                }
+            }
+            else if (!comm.mainScript.getRobotPosition(senderId, out msgOrigin))
+            {
+                Log.e(LogTag.COMM, "Failed to get Robot " + senderId + "'s position.");
+                validSenderPosition = false;
+            }
+
+            if (validSenderPosition)
             {
                 uint msgId = comm.nextMsgId++;
                 CommMessage msg = new CommMessage(msgId, senderId, receiverId, 
@@ -96,10 +124,6 @@ namespace CommSystem
                 comm.activeMsgIndicators.Add(msgId, msgIndicator);
 
                 Log.d(LogTag.COMM, msg.ToString(), comm.showInUnityConsole);
-            }
-            else
-            {
-                Log.e(LogTag.COMM, "Failed to get Robot " + senderId + "'s position.");
             }
         }
 
@@ -124,13 +148,13 @@ namespace CommSystem
             }
         }
 
-        public static void notifyDelivery(uint msgId, uint robotId)
+        public static void notifyDelivery(uint msgId, uint receiverId)
         {
             Comm comm = Instance();
 
             lock (comm.listMutex)
             {
-                comm.msgsToBeDelivered.Add(new KeyValuePair<uint, uint>(msgId, robotId));
+                comm.msgsToBeDelivered.Add(new KeyValuePair<uint, uint>(msgId, receiverId));
             }
         }
 
@@ -182,8 +206,9 @@ namespace CommSystem
 
                         if (comm.activeMsgIndicators.TryGetValue(msg.id, out msgIndicator))
                         {
-                            Vector3 msgScale = msgIndicator.transform.localScale;
+                            Vector3 msgScale = new Vector3();
                             msgScale.x = msg.distanceTraveled * 2.0f;
+                            msgScale.y = msg.distanceTraveled * 2.0f;
                             msgScale.z = msg.distanceTraveled * 2.0f;
                             msgIndicator.transform.localScale = msgScale;
                         }
@@ -246,6 +271,7 @@ namespace CommSystem
                     activeMsgIndicators = new Dictionary<uint, GameObject>();
                     msgsToBeDeleted = new List<uint>();
                     msgsToBeDelivered = new List<KeyValuePair<uint, uint>>();
+                    maxNumRobots = mainScript.getNumRobots();
 
                     msgIndicatorTemplate = retrieveMsgIndicatorTemplate();
 
@@ -276,27 +302,18 @@ namespace CommSystem
             }
         }
 
-        private void deliverMessage(uint messageId, uint robotId)
+        private void deliverMessage(uint messageId, uint receiverId)
         {
             CommMessage msg;
             if (activeMsgs.TryGetValue(messageId, out msg))
             {
-                comm.mainScript.notifyMessage(robotId, msg);
-                string type = (msg.id == RECEIVER_ALL ? "broadcast" : "direct");
-                Log.d(LogTag.COMM, 
-                      "Delivering " + type + " message " + messageId + " to Robot " + robotId,
-                      showInUnityConsole);
-                /*
-                    float fTime = Time.timeSinceLevelLoad - node.msg.sendTime;
-                    float fDistance = node.msg.distanceTraveled;
-                    string sTime = "time = " + fTime.ToString("F3");
-                    string sDistance = "distance = " + fDistance.ToString("F3");
+                comm.mainScript.notifyMessage(receiverId, msg);
+                string type = (msg.receiverId == RECEIVER_ALL ? "broadcast" : "direct");
+                string recipient = (receiverId == SATELLITE) ? "Satellite" : ("Robot " + receiverId);
 
-                    string id = string.Format("{0,6}", "(" + node.msg.id + ")");
-                    Log.d(LogTag.COMM,
-                            id + " : delivered (" + sTime + ", " + sDistance + ")",
-                            comm.showInUnityConsole);
-                */
+                Log.d(LogTag.COMM, 
+                      "Delivering " + type + " message " + messageId + " to " + recipient,
+                      showInUnityConsole);
             }
             else
             {
@@ -334,11 +351,7 @@ namespace CommSystem
 
             GameObject msgIndicator = GameObject.Instantiate(Instance().msgIndicatorTemplate);
             msgIndicator.hideFlags = HideFlags.None;
-
-            Vector3 position = new Vector3(msg.origin.x, 
-                                           0.05f + (msg.id % 100) / 1000.0f, 
-                                           msg.origin.z);
-            msgIndicator.transform.position = position;
+            msgIndicator.transform.position = msg.origin;
 
             if (!broadcast)
             {
@@ -348,7 +361,8 @@ namespace CommSystem
             }
             else
             {
-                msgIndicator.GetComponentInChildren<CommMessageBroadcast>().initialize(msg);
+                int numRobots = (msg.senderId == SATELLITE) ? maxNumRobots : maxNumRobots - 1;
+                msgIndicator.GetComponentInChildren<CommMessageBroadcast>().initialize(msg, numRobots);
             }
 
             msgIndicator.name = "Message " + msg.id;

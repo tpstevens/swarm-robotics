@@ -35,9 +35,15 @@ public interface MainInterface
     void notifyCollision(uint robotId, Collision collision);
 
     /// <summary>
-    /// Notify a robot that it has received a message.
+    /// Notify an actor that it has received a message.
     /// </summary>
-    /// <param name="robotId">The recipient's ID.</param>
+    /// <param name="receiverId">The receiver's ID.</param>
     /// <param name="msg">The message.</param>
-    void notifyMessage(uint robotId, CommMessage msg);
+    void notifyMessage(uint receiverId, CommMessage msg);
+
+    /// <summary>
+    /// Get the current position of the satellite.
+    /// </summary>
+    /// <returns>Whether the position was successfully assigned.</returns>
+    bool getSatellitePosition(out Vector3 position);
 }
