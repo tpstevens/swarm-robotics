@@ -56,6 +56,7 @@ namespace Robots
                         r.pushState(new RobotStateMove(Vector2.zero, r.VELOCITY));
                         r.pushState(new RobotStateSleep(0.5f));
                         r.pushState(new RobotStateMove(new Vector2(0, 5), r.VELOCITY));
+                        r.pushState(new RobotStateSleep(0.5f * r.id));
                     }
                     else
                     {

@@ -11,9 +11,9 @@ namespace Utilities
         private bool commShowInUnityConsole = false;
         private bool commShowMsgIndicators = false;
         private eSpawnShape spawnShape = eSpawnShape.SQUARE;
-        private float commMsgDistanceLimit = 25.0f;
+        private float commMsgDistanceLimit = 64.0f;
         private float commMsgSpeed = 10.0f;
-        private float groundLength = 25.0f;
+        private float groundLength = 64.0f;
         private float spawnRadius = 5.0f; // applies to both square and circle spawn shapes
         private float robotRadarRange = 10.0f;
         private int numRobots = 1;
@@ -139,8 +139,9 @@ namespace Utilities
                                 }
                                 else if (sKey == "groundlength")
                                 {
-                                    if (!extractFloat(sValue, ref groundLength))
-                                        Log.w(LogTag.CONFIG, "Invalid ground length " + sValue);
+                                    Log.w(LogTag.CONFIG, "Ignoring ground length from config (" + sValue + ") because of NavMesh");
+                                    // if (!extractFloat(sValue, ref groundLength))
+                                    //     Log.w(LogTag.CONFIG, "Invalid ground length " + sValue);
                                 }
                                 else if (sKey == "msgdistancelimit")
                                 {

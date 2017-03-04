@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-
+using UnityEngine.AI;
 using Utilities;
 
 namespace Robots
@@ -9,6 +9,9 @@ namespace Robots
         private readonly float speed;
         private readonly float tolerance = 0.05f;
         private readonly Vector2 targetPosition;
+
+        private NavMeshAgent robotAgent;
+        private Vector3 targetPosition3d;
 
         public RobotStateMove(Vector2 targetPosition, float speed)
         {
@@ -30,7 +33,14 @@ namespace Robots
             if (!initialized)
             {
                 initialized = true;
-                resume = true;  // Move state requires same behavior when initializing and resuming
+                targetPosition3d = new Vector3(targetPosition.x, r.body.transform.position.y, targetPosition.y);
+
+                robotAgent = r.body.GetComponent<NavMeshAgent>();
+                if (robotAgent == null)
+                {
+                    Log.a(LogTag.ROBOT, "Robot " + r.id + " does not have attached NavMeshAgent");
+                    finished = true;
+                }
             }
 
             ////////////////////////////////////////////////////////////////////////////////////////
@@ -39,21 +49,14 @@ namespace Robots
             if (resume)
             {
                 resume = false;
-
-                Log.e(LogTag.ROBOT, "MOVE target = " + targetPosition);
-
-                Vector3 target3dPosition = new Vector3(targetPosition.x, r.rigidbody.transform.position.y, targetPosition.y);
-                Vector3 lookDirection = target3dPosition - r.rigidbody.transform.position;
-                r.rigidbody.transform.rotation = Quaternion.LookRotation(lookDirection, Vector3.up);
-
-                // Will this cause problems with moving to extremely close positions?
-                Vector3 velocity = Vector3.Normalize(lookDirection) * speed;
-                r.body.GetComponent<Rigidbody>().AddForce(velocity, ForceMode.VelocityChange);
             }
 
             ////////////////////////////////////////////////////////////////////////////////////////
             // Update: check if robot has reached its destination (within specified tolerance)
             ////////////////////////////////////////////////////////////////////////////////////////
+            if (robotAgent != null)
+                robotAgent.SetDestination(targetPosition3d);
+
             Vector2 position2d = new Vector2(r.body.transform.position.x, r.body.transform.position.z);
             if (Vector2.Distance(position2d, targetPosition) <= tolerance)
                 finished = true;
