@@ -45,12 +45,10 @@ public class ResourceFactory {
     /// <param name="radius">The patch radius.</param>
     /// <param name="sideLength">The resource size length.</param>
     /// <param name="color">The resource color.</param>
-    /// <returns>The number of resources created.</returns>
+    /// <returns>The ID of the next resource to be created.</returns>
     public static uint createResourcePatch(uint number, uint startId, Vector2 center, float radius, float sideLength, Color color)
     {
         uint numResourcesRoot = (uint)Mathf.Sqrt(number);
-
-        ensureResourceHeaderExists();
 
         if (numResourcesRoot == 1)
         {
@@ -71,7 +69,7 @@ public class ResourceFactory {
             }
         }
 
-        return numResourcesRoot;
+        return startId;
     }
 
     /// <summary>

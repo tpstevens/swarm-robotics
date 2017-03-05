@@ -16,12 +16,9 @@ public class MainForaging : MonoBehaviour, MainInterface
     private Satellite Satellite;
 
     private Config currentConfig;
+    private GameObject[] Resources;
     private Robot[] robots;
 
-    private GameObject[] Resources;
-    private uint patch1;
-    private Vector2 center;
-    private float numSqr;
     /// <summary>
     /// Return the currently active configuration.
     /// </summary>
@@ -328,13 +325,13 @@ public class MainForaging : MonoBehaviour, MainInterface
                     }
                 }
             }*/
-                for (uint i = 0; i < 3; i++)
+
+            uint startId = 0;
+            for (uint i = 0; i < 3; i++)
             {
-                //patch1 = ResourceFactory.createResource(3, new Vector2(10f, -10f), 2.0f, Color.blue);
-                center = new Vector2(Random.Range(-25.0f, 25.0f), Random.Range(-25.0f, 25.0f));
-                //patch1 = ResourceFactory.createResourcePatch(9, 0, new Vector2(20f, -20f), 1.5f, 1.0f, Color.blue);
-                numSqr = Random.Range(1f, 18f);
-                patch1 = ResourceFactory.createResourcePatch((uint)numSqr, 0, center, 1.5f, 1.0f, Color.blue);
+                Vector2 center = new Vector2(Random.Range(-25.0f, 25.0f), Random.Range(-25.0f, 25.0f));
+                uint sideLength = (uint)(Random.Range(1, 4));
+                startId = ResourceFactory.createResourcePatch(sideLength * sideLength, startId, center, 1.5f, 1.0f, Color.blue);
             }
         }
 
