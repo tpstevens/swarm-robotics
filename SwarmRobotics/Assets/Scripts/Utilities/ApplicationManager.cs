@@ -1,4 +1,5 @@
-﻿using UnityEngine.SceneManagement;
+﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 using System;
 
@@ -19,12 +20,14 @@ namespace Utilities
         public static void reloadScene()
         {
             Log.w(LogTag.MAIN, "Writing log to file and reloading scene");
+
+            Time.timeScale = 0.0f; // disable updates until reload has completed
+
             string timestamp = DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss");
             Log.writeToFile("log_" + timestamp + ".txt");
             Log.clear();
 
             Comm.clear();
-
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
 
