@@ -17,7 +17,7 @@ namespace CommSystem
 
         // Parameters read from Config
         private readonly float MSG_DIST_LIMIT;   // message propagation limit, in m
-        private readonly float MSG_FAILURE_RATE; // what % of messages will fail? 0 -> 1 (unused)
+        // private readonly float MSG_FAILURE_RATE; // what % of messages will fail? 0 -> 1 (unused)
         private readonly float MSG_SPEED;        // message propagation speed, in m/s
         private bool showInUnityConsole;         // whether message send events appear in Unity console
         private bool showMsgIndicators;          // whether message indicators are rendered
@@ -234,7 +234,7 @@ namespace CommSystem
                         comm.activeMsgIndicators.Remove(id);
                         Object.Destroy(g);
                     }
-                } 
+                }
             }
         }
 
@@ -285,7 +285,7 @@ namespace CommSystem
                     Config config = mainScript.getCurrentConfig();
 
                     MSG_DIST_LIMIT = config.CommMsgDistanceLimit;
-                    MSG_FAILURE_RATE = 0.0f; // (unused)
+                    // MSG_FAILURE_RATE = 0.0f; // (unused)
                     MSG_SPEED = config.CommMsgSpeed;
 
                     showInUnityConsole = config.CommShowInUnityConsole;

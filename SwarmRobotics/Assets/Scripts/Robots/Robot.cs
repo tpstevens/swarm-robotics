@@ -10,7 +10,7 @@ namespace Robots
 {
     public class Robot
     {
-        public readonly float VELOCITY = 2.0f;
+        public readonly float VELOCITY = 3.0f;
         
         // TODO: does exposing these break encapsulation?
         public GameObject body;
@@ -49,7 +49,7 @@ namespace Robots
 
             // Insert other states here to test without waiting for satellite
             {
-                
+
             }
 
             stateStack.Push(new RobotStateSleep(1.0f)); // allow robots time to fall to ground

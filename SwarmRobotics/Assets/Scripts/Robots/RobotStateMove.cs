@@ -7,15 +7,13 @@ namespace Robots
 {
     public class RobotStateMove : RobotState
     {
-        private readonly float speed;
         private readonly float tolerance = 0.01f;
 
         private NavMeshAgent robotAgent;
         private Vector3 targetPosition;
 
-        public RobotStateMove(Vector2 targetPosition, float speed)
+        public RobotStateMove(Vector2 targetPosition)
         {
-            this.speed = speed;
             this.targetPosition = new Vector3(targetPosition.x, 0, targetPosition.y);
         }
 
@@ -46,6 +44,8 @@ namespace Robots
                 resume = false;
 
                 robotAgent = r.body.GetComponent<NavMeshAgent>();
+                robotAgent.speed = r.VELOCITY;
+
                 if (robotAgent == null)
                 {
                     Log.a(LogTag.ROBOT, "Robot " + r.id + " does not have attached NavMeshAgent");
@@ -54,7 +54,7 @@ namespace Robots
                 else
                 {
                     robotAgent.SetDestination(targetPosition);
-                    robotAgent.avoidancePriority = 50;
+                    robotAgent.avoidancePriority = (int)r.id + 1;
                 }
             }
 
@@ -85,7 +85,7 @@ namespace Robots
             ////////////////////////////////////////////////////////////////////////////////////////
             if (finished)
             {
-                Log.d(LogTag.ROBOT, "Robot " + r.id + " has reached target position " + targetPosition);
+                // Log.d(LogTag.ROBOT, "Robot " + r.id + " has reached target position " + targetPosition);
 
                 // Other robots must navigate around it
                 robotAgent.avoidancePriority = 0;

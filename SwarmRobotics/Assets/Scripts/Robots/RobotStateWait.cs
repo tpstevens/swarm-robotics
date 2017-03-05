@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 
+using System.Collections.Generic;
+
 using CommSystem;
 using Utilities;
 
@@ -53,10 +55,34 @@ namespace Robots
                     if (msg.text == "test")
                     {
                         Log.w(LogTag.ROBOT, "Robot " + r.id + " performing test.");
-                        r.pushState(new RobotStateMove(Vector2.zero, r.VELOCITY));
+                        r.pushState(new RobotStateMove(Vector2.zero));
                         r.pushState(new RobotStateSleep(0.5f));
-                        r.pushState(new RobotStateMove(new Vector2(0, 5), r.VELOCITY));
+                        r.pushState(new RobotStateMove(new Vector2(0, 5)));
                         r.pushState(new RobotStateSleep(0.5f * r.id));
+                    }
+                    else if (msg.text == "test_queue")
+                    {
+                        r.pushState(new RobotStateMove(new Vector2(0, -1.5f - r.id * 1.5f)));
+
+                        Queue<Vector2> waypointQueue = new Queue<Vector2>();
+                        bool switchDirection = false;
+
+                        waypointQueue.Enqueue(new Vector2(0, -2));
+
+                        for (int i = 0; i < 4; ++i)
+                        {
+                            for (int j = 0; j < 2; ++j)
+                            {
+                                if (switchDirection)
+                                    waypointQueue.Enqueue(new Vector2(i * 2, (1 - j) * 10));
+                                else
+                                    waypointQueue.Enqueue(new Vector2(i * 2, j * 10));
+                            }
+
+                            switchDirection = !switchDirection;
+                        }
+
+                        r.pushState(new RobotStateQueue(waypointQueue, 2.0f));
                     }
                     else
                     {

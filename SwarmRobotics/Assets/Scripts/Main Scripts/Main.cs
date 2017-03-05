@@ -398,7 +398,7 @@ public class Main : MonoBehaviour, MainInterface
         }
         else if (Input.GetKeyDown(KeyCode.S))
         {
-            Satellite.broadcastMessage("test");
+            Satellite.broadcastMessage("test_queue");
         }
     }
 

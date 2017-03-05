@@ -1,1 +1,10 @@
-add method to get file
+If state receives a message and can't/shouldn't process it, pass it down the stack to a state that can/should?
+
+Queues and following waypoints/waiting for robots to move are similar behaviors. Still have separate
+states, or find a way to use the Follow behavior inside a queue? Queue would just specify the next waypoint and then push the Follow onto the stack
+
+initialize FollowState with Vector2 or list of Vector2s, then pop from followstate once we're there
+
+For queue specifically, robot needs to move around queue to the back of line (don't get in way of first robot)
+
+add console with highlighting for sending satellite commands
