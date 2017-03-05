@@ -13,9 +13,9 @@ public class Main : MonoBehaviour, MainInterface
     public GameObject RobotObjects;
     public GameObject RobotPrefab;
     public GameObject MessageIndicatorPrefab;
-    private Satellite Satellite;
 
     private Config currentConfig;
+    private Satellite Satellite;
     private Robot[] robots;
 
     /// <summary>
@@ -216,7 +216,7 @@ public class Main : MonoBehaviour, MainInterface
             positiveX.transform.position = new Vector3(config.GroundLength / 2.0f + 0.05f, 
                                                        0.125f, 
                                                        0.0f);
-            positiveX.transform.parent = EnvironmentObjects.transform;
+            positiveX.transform.parent = Ground.transform;
 
             GameObject negativeX = GameObject.CreatePrimitive(PrimitiveType.Cube);
             negativeX.name = "Negative X";
@@ -224,7 +224,7 @@ public class Main : MonoBehaviour, MainInterface
             negativeX.transform.position = new Vector3(config.GroundLength / -2.0f - 0.05f, 
                                                        0.125f, 
                                                        0.0f);
-            negativeX.transform.parent = EnvironmentObjects.transform;
+            negativeX.transform.parent = Ground.transform;
 
             GameObject positiveZ = GameObject.CreatePrimitive(PrimitiveType.Cube);
             positiveZ.name = "Positive Z";
@@ -232,7 +232,7 @@ public class Main : MonoBehaviour, MainInterface
             positiveZ.transform.position = new Vector3(0.0f, 
                                                        0.125f, 
                                                        config.GroundLength / 2.0f + 0.05f);
-            positiveZ.transform.parent = EnvironmentObjects.transform;
+            positiveZ.transform.parent = Ground.transform;
 
             GameObject negativeZ = GameObject.CreatePrimitive(PrimitiveType.Cube);
             negativeZ.name = "Negative Z";
@@ -240,7 +240,7 @@ public class Main : MonoBehaviour, MainInterface
             negativeZ.transform.position = new Vector3(0.0f, 
                                                        0.125f, 
                                                        config.GroundLength / -2.0f - 0.05f);
-            negativeZ.transform.parent = EnvironmentObjects.transform;
+            negativeZ.transform.parent = Ground.transform;
 
             // Create satellite
             GameObject satelliteBody = GameObject.CreatePrimitive(PrimitiveType.Sphere);
