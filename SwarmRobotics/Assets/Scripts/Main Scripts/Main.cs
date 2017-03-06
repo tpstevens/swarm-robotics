@@ -21,6 +21,7 @@ public class Main : MonoBehaviour, MainInterface
 
     private Config currentConfig;
     private Queue<string> queuedConsoleCommands;
+    private ResourceFactory resourceFactory;
     private Robot[] robots;
     private Satellite Satellite;
 
@@ -52,6 +53,24 @@ public class Main : MonoBehaviour, MainInterface
     public int getNumRobots()
     {
         return robots.Length;
+    }
+
+    /// <summary>
+    /// Get a list of all 2D resource positions.
+    /// </summary>
+    /// <returns>Whether the positions were successfully retrieved.</returns>
+    public bool getResourcePositions(out List<Vector2> resourcePositions)
+    {
+        if (resourceFactory == null)
+        {
+            resourcePositions = new List<Vector2>();
+            return false;
+        }
+        else
+        {
+            resourcePositions = resourceFactory.getResourcePositions();
+            return true;
+        }
     }
 
     /// <summary>

@@ -9,4 +9,6 @@ For queue specifically, robot needs to move around queue to the back of line (do
 
 queue = move to queue staging position, then start of queue, then follow waypoints
 
-change ResourceFactory to non-static and add way for Satellite to get list of resource positions from MainInterface
+Split Main instantiation code into different methods
+
+Create parent Main object and override behaviors as necessary? Or split out common code like ground generation, resource placement, robot placement

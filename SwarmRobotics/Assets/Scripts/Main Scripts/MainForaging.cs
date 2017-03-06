@@ -20,6 +20,7 @@ public class MainForaging : MonoBehaviour, MainInterface
     private Config currentConfig;
     private GameObject[] Resources;
     private Queue<string> queuedConsoleCommands;
+    private ResourceFactory resourceFactory;
     private Robot[] robots;
     private Satellite Satellite;
 
@@ -51,6 +52,24 @@ public class MainForaging : MonoBehaviour, MainInterface
     public int getNumRobots()
     {
         return robots.Length;
+    }
+
+    /// <summary>
+    /// Get a list of all 2D resource positions.
+    /// </summary>
+    /// <returns>Whether the positions were successfully retrieved.</returns>
+    public bool getResourcePositions(out List<Vector2> resourcePositions)
+    {
+        if (resourceFactory == null)
+        {
+            resourcePositions = new List<Vector2>();
+            return false;
+        }
+        else
+        {
+            resourcePositions = resourceFactory.getResourcePositions();
+            return true;
+        }
     }
 
     /// <summary>
@@ -272,89 +291,16 @@ public class MainForaging : MonoBehaviour, MainInterface
             satelliteBody.name = "Satellite";
             satelliteBody.transform.parent = EnvironmentObjects.transform;
             satelliteBody.transform.position = new Vector3(0, 15, 0);
-
             Satellite = new Satellite(satelliteBody);
-            /*
 
-            // Placing patch 1 of resources 
-            Vector2 patchCenter1 = new Vector2(-8, 10);
-            float patchSpacing = 1.5f;
-            int numResources1 = 9;
-            uint numResourcesRoot1 = 3;
-
-            if (numResourcesRoot1 == 1)
-            {
-                Resources = new GameObject[numResources1];
-                //place it at center 
-                GameObject resource = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                resource.transform.name = "Resource 0";
-                resource.transform.position = new Vector3(patchCenter1.x, 0.5f, patchCenter1.y);
-                Resources[0] = resource;
-
-            }
-            else
-            {
-                Resources = new GameObject[numResources1];
-                for (uint i = 0; i < numResourcesRoot1; ++i)
-                {
-                    for (uint j = 0; j < numResourcesRoot1; ++j)
-                    {
-                        float x = patchCenter1.x - i * patchSpacing;
-                        float z = patchCenter1.y - j * patchSpacing;
-                        uint id = i * numResourcesRoot1 + j;
-                        GameObject resource = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                        resource.transform.name = "Resource " + id;
-                        resource.transform.parent = EnvironmentObjects.transform;
-                        resource.transform.position = new Vector3(x, 0.5f, z);
-                        Resources[numResourcesRoot1 * i + j] = resource;
-
-
-                    }
-                }
-            }
-            // Placing patch 2 of resources 
-            Vector2 patchCenter2 = new Vector2(8, -2);
-
-            int numResources2 = 4;
-            uint numResourcesRoot2 = 2;
-
-            if (numResourcesRoot1 == 1)
-            {
-                Resources = new GameObject[numResources2];
-                //place it at center 
-                GameObject resource = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                resource.transform.name = "Resource 0";
-                resource.transform.position = new Vector3(patchCenter2.x, 0.5f, patchCenter2.y);
-                Resources[0] = resource;
-
-            }
-            else
-            {
-                Resources = new GameObject[numResources2];
-                for (uint i = 0; i < numResourcesRoot2; ++i)
-                {
-                    for (uint j = 0; j < numResourcesRoot2; ++j)
-                    {
-                        float x = patchCenter2.x - i * patchSpacing;
-                        float z = patchCenter2.y - j * patchSpacing;
-                        uint id = i * numResourcesRoot2 + j;
-                        GameObject resource = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                        resource.transform.name = "Resource " + id;
-                        resource.transform.parent = EnvironmentObjects.transform;
-                        resource.transform.position = new Vector3(x, 0.5f, z);
-                        Resources[numResourcesRoot2 * i + j] = resource;
-
-
-                    }
-                }
-            }*/
-
+            // Create resources
+            resourceFactory = new ResourceFactory();
             uint startId = 0;
             for (uint i = 0; i < 3; i++)
             {
                 Vector2 center = new Vector2(Random.Range(-25.0f, 25.0f), Random.Range(-25.0f, 25.0f));
                 uint sideLength = (uint)(Random.Range(1, 4));
-                startId = ResourceFactory.createResourcePatch(i, sideLength * sideLength, startId, center, 1.5f, 1.0f, Color.blue, sceneMaterials.resourcePatch);
+                startId = resourceFactory.createResourcePatch(i, sideLength * sideLength, startId, center, 1.5f, 1.0f, Color.blue, sceneMaterials.resourcePatch);
             }
 
             // Create Resource Home

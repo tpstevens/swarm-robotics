@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 
+using System.Collections.Generic;
+
 using CommSystem;
 using Utilities;
 
@@ -16,6 +18,7 @@ public interface MainInterface
     /// </summary>
     /// <returns>The number of robots.</returns>
     int getNumRobots();
+    GameObject getMessageIndicatorPrefab();
 
     /// <summary>
     /// Get the current position of the satellite.
@@ -23,7 +26,11 @@ public interface MainInterface
     /// <returns>Whether the position was successfully assigned.</returns>
     bool getSatellitePosition(out Vector3 position);
 
-    GameObject getMessageIndicatorPrefab();
+    /// <summary>
+    /// Get a list of all 2D resource positions.
+    /// </summary>
+    /// <returns>Whether the positions were successfully retrieved.</returns>
+    bool getResourcePositions(out List<Vector2> resourcePositions);
 
     /// <summary>
     /// Get the position of the robot with the given ID.
