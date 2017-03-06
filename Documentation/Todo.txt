@@ -9,8 +9,4 @@ For queue specifically, robot needs to move around queue to the back of line (do
 
 queue = move to queue staging position, then start of queue, then follow waypoints
 
-add optional argument to Move for stop radius
-
-add helper function to return resource if within 0.5f in front of robot
-
 change ResourceFactory to non-static and add way for Satellite to get list of resource positions from MainInterface

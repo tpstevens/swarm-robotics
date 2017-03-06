@@ -10,6 +10,7 @@ namespace Robots
 {
     public class Robot
     {
+        public readonly float OBJECT_DETECT_DISTANCE = 0.5f;
         public readonly float VELOCITY = 3.0f;
         
         // TODO: does exposing these break encapsulation?
@@ -89,6 +90,25 @@ namespace Robots
         {
             detectRadar(0.0f);
             return sensors;
+        }
+
+        public GameObject getObjectInFront(float maxDistance = -1f)
+        {
+            GameObject result = null;
+
+            if (maxDistance < 0)
+                maxDistance = OBJECT_DETECT_DISTANCE;
+
+            RaycastHit hitInfo;
+            if (Physics.Raycast(body.transform.position,
+                                body.transform.forward,
+                                out hitInfo,
+                                OBJECT_DETECT_DISTANCE + body.transform.localScale.x / 2.0f))
+            {
+                result = hitInfo.transform.gameObject;
+            }
+
+            return result;
         }
 
         public float getOrientation()
