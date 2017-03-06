@@ -8,12 +8,14 @@ namespace Robots
     public class RobotStateMove : RobotState
     {
         private readonly float tolerance = 0.01f;
+        private readonly float stoppingDistance;
 
         private NavMeshAgent robotAgent;
         private Vector3 targetPosition;
 
-        public RobotStateMove(Vector2 targetPosition)
+        public RobotStateMove(Vector2 targetPosition, float stoppingDistance = -1f)
         {
+            this.stoppingDistance = stoppingDistance;
             this.targetPosition = new Vector3(targetPosition.x, 0, targetPosition.y);
         }
 
@@ -74,7 +76,11 @@ namespace Robots
                     r.pushState(new RobotStateSleep(1.0f));
                 }
             }
-
+            else if (stoppingDistance > 0 && Vector3.Distance(targetPosition, r.body.transform.position) < stoppingDistance)
+            {
+                finished = true;
+                robotAgent.SetDestination(r.body.transform.position);
+            }
 
             ////////////////////////////////////////////////////////////////////////////////////////
             // Process messages: no, should be handled in other states
