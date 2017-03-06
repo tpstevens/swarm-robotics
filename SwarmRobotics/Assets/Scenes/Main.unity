@@ -350,6 +350,8 @@ MonoBehaviour:
     type: 2}
   MessageIndicatorPrefab: {fileID: 1942259261295958, guid: cfb609de831c5a04db815dafe4f7f6f2,
     type: 2}
+  sceneMaterials:
+    resourceHome: {fileID: 2100000, guid: f8c68b171ba911c4e8907fd9087cbb88, type: 2}
 --- !u!1 &888825454
 GameObject:
   m_ObjectHideFlags: 0
@@ -551,8 +553,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.5}
-  m_SizeDelta: {x: -20, y: -13}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: -10, y: -10}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1148342087
 MonoBehaviour:
@@ -578,7 +580,7 @@ MonoBehaviour:
     m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 1
-    m_MinSize: 10
+    m_MinSize: 2
     m_MaxSize: 200
     m_Alignment: 0
     m_AlignByGeometry: 0

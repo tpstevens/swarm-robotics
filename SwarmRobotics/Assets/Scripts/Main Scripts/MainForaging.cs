@@ -15,12 +15,20 @@ public class MainForaging : MonoBehaviour, MainInterface
     public GameObject RobotObjects;
     public GameObject RobotPrefab;
     public GameObject MessageIndicatorPrefab;
+    public SceneMaterials sceneMaterials;
 
     private Config currentConfig;
     private GameObject[] Resources;
     private Queue<string> queuedConsoleCommands;
     private Robot[] robots;
     private Satellite Satellite;
+
+    [System.Serializable]
+    public class SceneMaterials
+    {
+        public Material resourceHome;
+        public Material resourcePatch;
+    }
 
     /// <summary>
     /// Return the currently active configuration.
@@ -346,8 +354,11 @@ public class MainForaging : MonoBehaviour, MainInterface
             {
                 Vector2 center = new Vector2(Random.Range(-25.0f, 25.0f), Random.Range(-25.0f, 25.0f));
                 uint sideLength = (uint)(Random.Range(1, 4));
-                startId = ResourceFactory.createResourcePatch(sideLength * sideLength, startId, center, 1.5f, 1.0f, Color.blue);
+                startId = ResourceFactory.createResourcePatch(i, sideLength * sideLength, startId, center, 1.5f, 1.0f, Color.blue, sceneMaterials.resourcePatch);
             }
+
+            // Create Resource Home
+            WorldspaceUIFactory.createQuad("Resource Home", new Rect(Vector2.zero, new Vector2(10, 10)), sceneMaterials.resourceHome);
         }
 
         return result;

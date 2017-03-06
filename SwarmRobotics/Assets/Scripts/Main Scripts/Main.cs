@@ -17,11 +17,19 @@ public class Main : MonoBehaviour, MainInterface
     public GameObject RobotObjects;
     public GameObject RobotPrefab;
     public GameObject MessageIndicatorPrefab;
+    public SceneMaterials sceneMaterials;
 
     private Config currentConfig;
     private Queue<string> queuedConsoleCommands;
     private Robot[] robots;
     private Satellite Satellite;
+
+    [System.Serializable]
+    public class SceneMaterials
+    {
+        public Material resourceHome;
+        public Material resourcePatch;
+    }
 
     /// <summary>
     /// Return the currently active configuration.
