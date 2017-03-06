@@ -1,13 +1,17 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
+using System.Collections.Generic;
+
 using CommSystem;
 using Robots;
+using UserInterface;
 using Utilities;
 
 public class Main : MonoBehaviour, MainInterface
 {
     public Camera overheadCamera;
+    public ConsoleLine console;
     public GameObject EnvironmentObjects;
     public GameObject Ground;
     public GameObject RobotObjects;
@@ -15,8 +19,9 @@ public class Main : MonoBehaviour, MainInterface
     public GameObject MessageIndicatorPrefab;
 
     private Config currentConfig;
-    private Satellite Satellite;
+    private Queue<string> queuedConsoleCommands;
     private Robot[] robots;
+    private Satellite Satellite;
 
     /// <summary>
     /// Return the currently active configuration.
@@ -109,12 +114,25 @@ public class Main : MonoBehaviour, MainInterface
     }
 
     /// <summary>
+    /// Add a console command to the queue waiting to be processed.
+    /// </summary>
+    /// <param name="cmd">The command.</param>
+    public void queueConsoleCommand(string cmd)
+    {
+        queuedConsoleCommands.Enqueue(cmd);
+    }
+
+    /// <summary>
     /// Implementation of MonoBehaviour.Start(). Reads the argument files, create the environment, 
     /// place robots, and pause the simulation. 
     /// </summary>
     void Start()
     {
         Log.w(LogTag.MAIN, "Loading scene " + SceneManager.GetActiveScene().name);
+
+        // instantiate user interface
+        console.initialize();
+        queuedConsoleCommands = new Queue<string>();
 
         // initialize random number generator
         Random.InitState(System.DateTime.Now.Millisecond);
@@ -354,51 +372,74 @@ public class Main : MonoBehaviour, MainInterface
         return result;
     }
 
+    private void processConsoleCommands()
+    {
+        while (queuedConsoleCommands.Count > 0)
+        {
+            string cmd = queuedConsoleCommands.Dequeue().ToLower();
+
+            if (cmd == "test_message")
+            {
+                uint sender = (uint)Random.Range(0, robots.Length);
+                uint receiver = sender;
+                while (receiver == sender)
+                    receiver = (uint)Random.Range(0, robots.Length + 1);
+
+                if (receiver == robots.Length) // broadcast message
+                {
+                    Comm.broadcastMessage(sender, "TEST BROADCAST");
+                }
+                else // direct message
+                {
+                    Comm.directMessage(sender, receiver, "TEST DIRECT MESSAGE");
+                }
+            }
+            else if (cmd == "test_queue")
+            {
+                Satellite.broadcastMessage(cmd);
+            }
+            else
+            {
+                Log.e(LogTag.MAIN, "Unknown console command: " + cmd);
+            }
+        }
+    }
+
     /// <summary>
     /// Get user input,  perform application functions (quit, pause, reload, etc.).
     /// </summary>
     private void processUserInput()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            ApplicationManager.quit();
-        }
-        else if (Input.GetKeyDown(KeyCode.R))
-        {
-            ApplicationManager.reloadScene();
-        }
-        else if (Input.GetKeyDown(KeyCode.P) || Input.GetKeyDown(KeyCode.Space))
-        {
-            Time.timeScale = (Time.timeScale != 0.0f) ? 0f : 1f;
-            Log.d(LogTag.MAIN, "Timescale set to " + Time.timeScale);
-        }
-        else if (Input.GetKeyDown(KeyCode.M))
-        {
-            uint sender = (uint)Random.Range(0, robots.Length);
-            uint receiver = sender;
-            while (receiver == sender)
-                receiver = (uint)Random.Range(0, robots.Length + 1);
+        processConsoleCommands();
 
-            if (receiver == robots.Length) // broadcast message
+        if (Input.GetKeyDown(KeyCode.BackQuote))
+        {
+            console.toggle();
+        }
+
+        if (!console.isSelected())
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
             {
-                Comm.broadcastMessage(sender, "TEST BROADCAST");
+                ApplicationManager.quit();
             }
-            else // direct message
+            else if (Input.GetKeyDown(KeyCode.R))
             {
-                Comm.directMessage(sender, receiver, "TEST DIRECT MESSAGE");
+                ApplicationManager.reloadScene();
             }
-        }
-        else if (Input.GetKeyDown(KeyCode.C))
-        {
-            Comm.toggleShowInUnityConsole();
-        }
-        else if (Input.GetKeyDown(KeyCode.I))
-        {
-            Comm.toggleShowMsgIndicators();
-        }
-        else if (Input.GetKeyDown(KeyCode.S))
-        {
-            Satellite.broadcastMessage("test_queue");
+            else if (Input.GetKeyDown(KeyCode.P) || Input.GetKeyDown(KeyCode.Space))
+            {
+                Time.timeScale = (Time.timeScale != 0.0f) ? 0f : 1f;
+                Log.d(LogTag.MAIN, "Timescale set to " + Time.timeScale);
+            }
+            else if (Input.GetKeyDown(KeyCode.C))
+            {
+                Comm.toggleShowInUnityConsole();
+            }
+            else if (Input.GetKeyDown(KeyCode.I))
+            {
+                Comm.toggleShowMsgIndicators();
+            }
         }
     }
 

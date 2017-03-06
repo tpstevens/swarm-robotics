@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
+using System.Collections.Generic;
+
 using CommSystem;
 using Robots;
 using Utilities;
@@ -13,11 +15,12 @@ public class MainForaging : MonoBehaviour, MainInterface
     public GameObject RobotObjects;
     public GameObject RobotPrefab;
     public GameObject MessageIndicatorPrefab;
-    private Satellite Satellite;
 
     private Config currentConfig;
     private GameObject[] Resources;
+    private Queue<string> queuedConsoleCommands;
     private Robot[] robots;
+    private Satellite Satellite;
 
     /// <summary>
     /// Return the currently active configuration.
@@ -110,12 +113,24 @@ public class MainForaging : MonoBehaviour, MainInterface
     }
 
     /// <summary>
+    /// Add a console command to the queue waiting to be processed.
+    /// </summary>
+    /// <param name="cmd">The command.</param>
+    public void queueConsoleCommand(string cmd)
+    {
+        queuedConsoleCommands.Enqueue(cmd);
+    }
+
+    /// <summary>
     /// Implementation of MonoBehaviour.Start(). Reads the argument files, create the environment, 
     /// place robots, and pause the simulation. 
     /// </summary>
     void Start()
     {
         Log.w(LogTag.MAIN, "Loading scene " + SceneManager.GetActiveScene().name);
+
+        // instantiate user interface
+        queuedConsoleCommands = new Queue<string>();
 
         // initialize random number generator
         Random.InitState(System.DateTime.Now.Millisecond);

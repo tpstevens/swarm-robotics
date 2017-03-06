@@ -17,6 +17,12 @@ public interface MainInterface
     /// <returns>The number of robots.</returns>
     int getNumRobots();
 
+    /// <summary>
+    /// Get the current position of the satellite.
+    /// </summary>
+    /// <returns>Whether the position was successfully assigned.</returns>
+    bool getSatellitePosition(out Vector3 position);
+
     GameObject getMessageIndicatorPrefab();
 
     /// <summary>
@@ -42,8 +48,8 @@ public interface MainInterface
     void notifyMessage(uint receiverId, CommMessage msg);
 
     /// <summary>
-    /// Get the current position of the satellite.
+    /// Add a console command to the queue waiting to be processed.
     /// </summary>
-    /// <returns>Whether the position was successfully assigned.</returns>
-    bool getSatellitePosition(out Vector3 position);
+    /// <param name="cmd">The command.</param>
+    void queueConsoleCommand(string cmd);
 }
