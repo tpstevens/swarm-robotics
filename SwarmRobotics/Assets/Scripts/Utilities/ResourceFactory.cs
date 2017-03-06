@@ -21,6 +21,7 @@ public class ResourceFactory {
 
         GameObject resource = GameObject.CreatePrimitive(PrimitiveType.Cube);
         resource.transform.name = "Resource " + id;
+        resource.transform.tag = "Resource";
         resource.transform.localScale = new Vector3(sideLength, sideLength, sideLength);
         resource.transform.position = new Vector3(position.x, sideLength / 2.0f, position.y);
         resource.transform.SetParent(Resources.transform);

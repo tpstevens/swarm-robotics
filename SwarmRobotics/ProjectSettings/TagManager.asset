@@ -8,6 +8,7 @@ TagManager:
   - Message
   - Ground
   - Satellite
+  - Resource
   layers:
   - Default
   - TransparentFX
