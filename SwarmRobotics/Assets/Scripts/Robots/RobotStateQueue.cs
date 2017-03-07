@@ -94,8 +94,7 @@ namespace Robots
                         Vector2 nextDestination = nextWaypoint;
                         Vector2 dir2d = nextDestination - currentPosition;
                         Vector3 dir3d = new Vector3(dir2d.x, 0, dir2d.y);
-
-                        Debug.DrawRay(r.body.transform.position, dir3d, Color.magenta, 1.0f);
+                        
                         if (Physics.Raycast(r.body.transform.position, dir3d, out hitInfo, distanceToWaypoint, layerMask))
                         {
                             float distanceBetweenRobots = hitInfo.distance + r.body.transform.localScale.x / 2.0f;
@@ -113,12 +112,10 @@ namespace Robots
 
                         if (moveToDestination)
                         {
-                            r.body.GetComponent<NavMeshAgent>().Resume();
                             r.pushState(new RobotStateMove(nextDestination));
                         }
                         else
                         {
-                            r.body.GetComponent<NavMeshAgent>().Stop();
                             r.pushState(new RobotStateSleep(0.1f));
                         }
                     }

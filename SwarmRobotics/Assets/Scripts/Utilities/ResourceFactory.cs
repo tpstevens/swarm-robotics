@@ -12,6 +12,8 @@ public class ResourceFactory {
 
     public ResourceFactory()
     {
+        resources = new List<GameObject>();
+
         resourceHeader = GameObject.Find("Resources");
         if (resourceHeader == null)
         {

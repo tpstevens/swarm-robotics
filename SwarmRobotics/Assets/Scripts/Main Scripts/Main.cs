@@ -295,6 +295,9 @@ public class Main : MonoBehaviour, MainInterface
             satelliteBody.transform.position = new Vector3(0, 15, 0);
 
             Satellite = new Satellite(satelliteBody);
+
+            // Place resources
+            resourceFactory = new ResourceFactory();
         }
 
         return result;
