@@ -62,12 +62,10 @@ namespace Robots
                     }
                     else if (msg.text == "test_queue")
                     {
-                        r.pushState(new RobotStateMove(new Vector2(0, -1.5f - r.id * 1.5f)));
-
                         Queue<Vector2> waypointQueue = new Queue<Vector2>();
                         bool switchDirection = false;
 
-                        waypointQueue.Enqueue(new Vector2(0, -2));
+                        waypointQueue.Enqueue(new Vector2(0, -2)); // to attempt to avoid blocking the queue start
 
                         for (int i = 0; i < 4; ++i)
                         {

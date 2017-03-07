@@ -12,3 +12,5 @@ queue = move to queue staging position, then start of queue, then follow waypoin
 Split Main instantiation code into different methods
 
 Create parent Main object and override behaviors as necessary? Or split out common code like ground generation, resource placement, robot placement
+
+put constants (robot diameter, resource size, etc) in Constants file

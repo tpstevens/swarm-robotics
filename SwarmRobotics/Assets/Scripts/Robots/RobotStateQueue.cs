@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.AI;
 
 using System.Collections.Generic;
 
@@ -9,20 +10,17 @@ namespace Robots
     public class RobotStateQueue : RobotState
     {
         private bool enteredQueue;
-        private bool waiting;
-        private float nextSpacing;
-        private float queueSpacing;
+        private float robotSpacing;
         private Queue<Vector2> queueWaypoints;
         private Vector2 lastWaypoint; // used to determine direction the robot will travel
-        private Vector2 nextPosition; // used to determine which spot the robot will occupy next
+        private Vector2 nextWaypoint; // used to determine which spot the robot will occupy next
 
-        public RobotStateQueue(Queue<Vector2> queueWaypoints, float queueSpacing)
+        public RobotStateQueue(Queue<Vector2> queueWaypoints, float robotSpacing)
         {
             this.queueWaypoints = queueWaypoints;
-            this.queueSpacing = queueSpacing;
+            this.robotSpacing = robotSpacing;
 
             enteredQueue = false;
-            waiting = false;
         }
 
         /// <summary>
@@ -44,7 +42,12 @@ namespace Robots
                 resume = true;
 
                 lastWaypoint = currentPosition;
-                nextPosition = queueWaypoints.Peek();
+                nextWaypoint = queueWaypoints.Peek();
+
+                if (robotSpacing < r.body.transform.localScale.x * 2)
+                {
+                    Log.a(LogTag.ROBOT, "Cannot initialize queue with robot spacing that's less than 2x robot radius!");
+                }
             }
 
             ////////////////////////////////////////////////////////////////////////////////////////
@@ -54,15 +57,21 @@ namespace Robots
             {
                 resume = false;
                 
-                if (Vector2.Distance(currentPosition, nextPosition) < 0.01f || waiting)
+                if (!enteredQueue)
+                {
+                    Log.d(LogTag.ROBOT, "Robot " + r.id + " is travelling to the the queue at " + queueWaypoints.Peek());
+                    enteredQueue = true;
+                    nextWaypoint = queueWaypoints.Peek();
+                    r.pushState(new RobotStateMove(nextWaypoint));
+                }
+                else
                 {
                     if (!enteredQueue)
                     {
-                        Log.d(LogTag.ROBOT, "Robot " + r.id + " has entered the queue at " + queueWaypoints.Peek());
                         enteredQueue = true;
                     }
 
-                    if (Vector2.Distance(currentPosition, queueWaypoints.Peek()) < 0.1f)
+                    if (Vector2.Distance(currentPosition, nextWaypoint) < 0.1f)
                     {
                         lastWaypoint = queueWaypoints.Dequeue();
 
@@ -70,48 +79,49 @@ namespace Robots
                         {
                             finished = true;
                         }
+                        else
+                        {
+                            nextWaypoint = queueWaypoints.Peek();
+                        }
                     }
                     
                     if (!finished)
                     {
-                        if (!waiting)
-                        {
-                            nextSpacing = Mathf.Min(Vector2.Distance(currentPosition, queueWaypoints.Peek()), queueSpacing);
+                        bool moveToDestination = true;
+                        float distanceToWaypoint = Vector2.Distance(currentPosition, nextWaypoint);
+                        int layerMask = 1 << 8; // check Robot layer only
+                        RaycastHit hitInfo;
+                        Vector2 nextDestination = nextWaypoint;
+                        Vector2 dir2d = nextDestination - currentPosition;
+                        Vector3 dir3d = new Vector3(dir2d.x, 0, dir2d.y);
 
-                            if (nextSpacing < queueSpacing)
+                        Debug.DrawRay(r.body.transform.position, dir3d, Color.magenta, 1.0f);
+                        if (Physics.Raycast(r.body.transform.position, dir3d, out hitInfo, distanceToWaypoint, layerMask))
+                        {
+                            float distanceBetweenRobots = hitInfo.distance + r.body.transform.localScale.x / 2.0f;
+                            if (distanceBetweenRobots > robotSpacing)
                             {
-                                nextPosition = queueWaypoints.Peek();
+                                dir2d.Normalize();
+                                float nextDestinationDistance = distanceBetweenRobots - robotSpacing;
+                                nextDestination = nextWaypoint - dir2d * (distanceToWaypoint - nextDestinationDistance);
                             }
                             else
                             {
-                                Vector2 nextDirection = queueWaypoints.Peek() - lastWaypoint;
-                                nextDirection.Normalize();
-                                nextPosition = currentPosition + queueSpacing * nextDirection;
+                                moveToDestination = false;
                             }
                         }
 
-                        int layerMask = 1 << 8;
-                        RaycastHit hitInfo;
-                        Vector2 direction = nextPosition - currentPosition;
-                        Vector3 nextDir3d = new Vector3(direction.x, 0, direction.y);
-                        
-                        if (!Physics.Raycast(r.body.transform.position, nextDir3d, out hitInfo, nextSpacing, layerMask))
+                        if (moveToDestination)
                         {
-                            r.pushState(new RobotStateMove(nextPosition));
-                            waiting = false;
+                            r.body.GetComponent<NavMeshAgent>().Resume();
+                            r.pushState(new RobotStateMove(nextDestination));
                         }
                         else
                         {
+                            r.body.GetComponent<NavMeshAgent>().Stop();
                             r.pushState(new RobotStateSleep(0.1f));
-                            waiting = true;
                         }
                     }
-                }
-                else
-                {
-                    Log.d(LogTag.ROBOT, "Robot " + r.id + " is travelling to the the queue at " + queueWaypoints.Peek());
-                    nextPosition = queueWaypoints.Peek();
-                    r.pushState(new RobotStateMove(nextPosition));
                 }
             }
 
