@@ -408,7 +408,11 @@ public class Main : MonoBehaviour, MainInterface
         {
             string cmd = queuedConsoleCommands.Dequeue().ToLower();
 
-            if (cmd == "test_message")
+            if (cmd == "construction")
+            {
+                Satellite.broadcastMessage("construction\tstart");
+            }
+            else if (cmd == "test_message")
             {
                 uint sender = (uint)Random.Range(0, robots.Length);
                 uint receiver = sender;

@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using UnityEngine;
+
 using System.Collections.Generic;
-using UnityEngine;
+
+using Utilities;
 
 namespace CommSystem
 {
@@ -15,6 +17,11 @@ namespace CommSystem
             this.body = body;
 
             unhandledMessages = new Queue<CommMessage>();
+        }
+
+        public void directMessage(uint receiverId, string text)
+        {
+            Comm.directMessage(Comm.SATELLITE, receiverId, text);
         }
 
         public void broadcastMessage(string text)
@@ -37,12 +44,25 @@ namespace CommSystem
         /// <param name="msg"></param>
         public void queueMessage(CommMessage msg)
         {
+            Log.d(LogTag.COMM, "satellite.queueMessage: " + msg);
             unhandledMessages.Enqueue(msg);
         }
 
         public void update()
         {
-            // TODO: handle messages
+            while (unhandledMessages.Count > 0)
+            {
+                CommMessage msg = unhandledMessages.Dequeue();
+
+                if (msg.text.StartsWith("construction"))
+                {
+                    string[] lines = msg.text.Split('\t');
+                    if (lines[1] == "request_task")
+                    {
+                        directMessage(msg.senderId, "construction\tfinished");
+                    }
+                }
+            }
         }
     }
 }

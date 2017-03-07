@@ -50,7 +50,7 @@ namespace Robots
 
             // Insert other states here to test without waiting for satellite
             {
-
+                
             }
 
             stateStack.Push(new RobotStateSleep(1.0f)); // allow robots time to fall to ground

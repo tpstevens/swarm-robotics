@@ -27,7 +27,7 @@ namespace Robots
             if (!initialized)
             {
                 initialized = true;
-                Log.d(LogTag.ROBOT, "Robot " + r.id + " is sleeping for " + timer + " s");
+                // Log.d(LogTag.ROBOT, "Robot " + r.id + " is sleeping for " + timer + " s");
             }
 
             ////////////////////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ namespace Robots
             if (resume)
             {
                 resume = false;
-                Log.d(LogTag.ROBOT, "Robot " + r.id + " is returning to sleep (" + timer + " s remain)");
+                // Log.d(LogTag.ROBOT, "Robot " + r.id + " is returning to sleep (" + timer + " s remain)");
             }
 
             ////////////////////////////////////////////////////////////////////////////////////////
@@ -55,7 +55,7 @@ namespace Robots
             ////////////////////////////////////////////////////////////////////////////////////////
             if (finished)
             {
-                Log.d(LogTag.ROBOT, "Robot " + r.id + " has finished sleeping");
+                // Log.d(LogTag.ROBOT, "Robot " + r.id + " has finished sleeping");
 
                 // Pop state off the stack
                 r.popState();

@@ -116,8 +116,8 @@ namespace CommSystem
             {
                 uint msgId = comm.nextMsgId++;
                 CommMessage msg = new CommMessage(msgId, senderId, receiverId, 
-                                                 msgOrigin, comm.MSG_DIST_LIMIT, comm.MSG_SPEED,
-                                                 text);
+                                                  msgOrigin, comm.MSG_DIST_LIMIT, comm.MSG_SPEED,
+                                                  text);
                 GameObject msgIndicator = comm.instantiateMsgIndicator(msg);
 
                 comm.activeMsgs.Add(msgId, msg);
@@ -192,16 +192,28 @@ namespace CommSystem
                 GameObject msgIndicator;
                 foreach (KeyValuePair<uint, CommMessage> p in comm.activeMsgs)
                 {
-                    if (p.Value.receiverId != Comm.RECEIVER_ALL)
+                    if (p.Value.receiverId != RECEIVER_ALL)
                     {
                         msg = p.Value;
                         msg.distanceTraveled += frameTime * msg.propagationSpeed;
 
-                        if (comm.mainScript.getRobotPosition(msg.receiverId, out robotPosition)
-                            && Vector3.Distance(msg.origin, robotPosition) <= msg.distanceTraveled)
+                        if (msg.receiverId == SATELLITE)
                         {
-                            comm.msgsToBeDelivered.Add(new KeyValuePair<uint, uint>(msg.id, msg.receiverId));
-                            comm.msgsToBeDeleted.Add(msg.id);
+                            if (comm.mainScript.getSatellitePosition(out robotPosition)
+                                 && Vector3.Distance(msg.origin, robotPosition) <= msg.distanceTraveled)
+                            {
+                                comm.msgsToBeDelivered.Add(new KeyValuePair<uint, uint>(msg.id, msg.receiverId));
+                                comm.msgsToBeDeleted.Add(msg.id);
+                            }
+                        }
+                        else
+                        {
+                            if (comm.mainScript.getRobotPosition(msg.receiverId, out robotPosition)
+                            && Vector3.Distance(msg.origin, robotPosition) <= msg.distanceTraveled)
+                            {
+                                comm.msgsToBeDelivered.Add(new KeyValuePair<uint, uint>(msg.id, msg.receiverId));
+                                comm.msgsToBeDeleted.Add(msg.id);
+                            }
                         }
 
                         if (comm.activeMsgIndicators.TryGetValue(msg.id, out msgIndicator))
@@ -308,6 +320,7 @@ namespace CommSystem
             if (activeMsgs.TryGetValue(messageId, out msg))
             {
                 comm.mainScript.notifyMessage(receiverId, msg);
+
                 string type = (msg.receiverId == RECEIVER_ALL ? "broadcast" : "direct");
                 string recipient = (receiverId == SATELLITE) ? "Satellite" : ("Robot " + receiverId);
 
