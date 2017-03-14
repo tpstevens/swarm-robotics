@@ -19,6 +19,12 @@ namespace Robots
             this.targetPosition = new Vector3(targetPosition.x, 0, targetPosition.y);
         }
 
+        public RobotStateMove(Vector3 targetPosition, float stoppingDistance = -1f)
+        {
+            this.stoppingDistance = stoppingDistance;
+            this.targetPosition = targetPosition;
+        }
+
         /// <summary>
         /// Called every frame from Robot.update() if it's the current state (top of the stack)
         /// </summary>
