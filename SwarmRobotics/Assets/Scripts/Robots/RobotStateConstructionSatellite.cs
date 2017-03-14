@@ -153,7 +153,7 @@ namespace Robots
 
                                 if (msgData.lastTask)
                                 {
-                                    r.pushState(new RobotStateMove(new Vector2(0.0f, 10 + r.id * 2)));
+                                    r.pushState(new RobotStateMove(new Vector2(r.id * -1.5f, 31)));
                                     state = ConstructionState.FINISHED;
                                 }
                                 else
@@ -179,7 +179,7 @@ namespace Robots
                     }
                     else if (msg.text == "construction/finished")
                     {
-                        r.pushState(new RobotStateMove(new Vector2(0.0f, 10 + r.id * 2)));
+                        r.pushState(new RobotStateMove(new Vector2(r.id * -1.5f, 31)));
                         state = ConstructionState.FINISHED;
                     }
                     else

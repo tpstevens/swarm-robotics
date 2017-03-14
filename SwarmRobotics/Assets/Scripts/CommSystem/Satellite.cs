@@ -72,6 +72,7 @@ namespace CommSystem
             }
 
             constructionPerimeter = new List<Vector2>();
+            constructionPerimeter.Add(new Vector2(-1 * placementSpacing, 3 * placementSpacing));
             constructionPerimeter.Add(new Vector2(-1 * placementSpacing, 2 * placementSpacing));
             constructionPerimeter.Add(new Vector2(2 * placementSpacing, 2 * placementSpacing));
             constructionPerimeter.Add(new Vector2(2 * placementSpacing, -2f * placementSpacing));

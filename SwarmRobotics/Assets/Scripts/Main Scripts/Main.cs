@@ -171,7 +171,7 @@ public class Main : MonoBehaviour, MainInterface
         initialize(args.configFileName);
 
         // pause game
-        Time.timeScale = 0.0f;
+        ApplicationManager.togglePause();
     }
 
     /// <summary>
@@ -461,7 +461,7 @@ public class Main : MonoBehaviour, MainInterface
             }
             else if (Input.GetKeyDown(KeyCode.P) || Input.GetKeyDown(KeyCode.Space))
             {
-                Time.timeScale = (Time.timeScale != 0.0f) ? 0f : 1f;
+                ApplicationManager.togglePause();
                 Log.d(LogTag.MAIN, "Timescale set to " + Time.timeScale);
             }
             else if (Input.GetKeyDown(KeyCode.C))
@@ -472,9 +472,17 @@ public class Main : MonoBehaviour, MainInterface
             {
                 Comm.toggleShowMsgIndicators();
             }
+            else if (Input.GetKeyDown(KeyCode.Equals))
+            {
+                ApplicationManager.increaseSimulationSpeed();
+            }
+            else if (Input.GetKeyDown(KeyCode.Minus))
+            {
+                ApplicationManager.decreaseSimulationSpeed();
+            }
         }
     }
-
+    
     /// <summary>
     /// Resize the overhead camera to fit the entire scene.
     /// </summary>

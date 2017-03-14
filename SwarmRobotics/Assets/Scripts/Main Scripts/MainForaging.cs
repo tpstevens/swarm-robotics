@@ -472,7 +472,7 @@ public class MainForaging : MonoBehaviour, MainInterface
             }
             else if (Input.GetKeyDown(KeyCode.P) || Input.GetKeyDown(KeyCode.Space))
             {
-                Time.timeScale = (Time.timeScale != 0.0f) ? 0f : 1f;
+                ApplicationManager.togglePause();
                 Log.d(LogTag.MAIN, "Timescale set to " + Time.timeScale);
             }
             else if (Input.GetKeyDown(KeyCode.C))

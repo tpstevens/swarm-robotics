@@ -13,6 +13,36 @@ namespace Utilities
         public static readonly int LAYER_MESSAGES = 9;
 
         private static bool handledQuitEvent = false;
+        private static int[] timeScales = { 1, 2, 4, 8 };
+        private static int currentTimeScale = 0;
+
+        public static void decreaseSimulationSpeed()
+        {
+            int lastTimeScale = currentTimeScale;
+            currentTimeScale = Math.Max(currentTimeScale - 1, 0);
+
+            if (currentTimeScale != lastTimeScale)
+            {
+                if (Time.timeScale != 0)
+                    Time.timeScale = timeScales[currentTimeScale];
+
+                Log.w(LogTag.MAIN, "Set timescale to " + timeScales[currentTimeScale]);
+            }
+        }
+
+        public static void increaseSimulationSpeed()
+        {
+            int lastTimeScale = currentTimeScale;
+            currentTimeScale = Math.Min(currentTimeScale + 1, timeScales.Length - 1);
+
+            if (currentTimeScale != lastTimeScale)
+            {
+                if (Time.timeScale != 0)
+                    Time.timeScale = timeScales[currentTimeScale];
+
+                Log.w(LogTag.MAIN, "Set timescale to " + timeScales[currentTimeScale]);
+            }
+        }
 
         /// <summary>
         /// Write the current log to file, clear the log, and reload the current scene.
@@ -50,6 +80,14 @@ namespace Utilities
 #endif
             }
 
+        }
+
+        public static void togglePause()
+        {
+            if (Time.timeScale == 0.0f)
+                Time.timeScale = timeScales[currentTimeScale];
+            else
+                Time.timeScale = 0.0f;
         }
     }
 }
