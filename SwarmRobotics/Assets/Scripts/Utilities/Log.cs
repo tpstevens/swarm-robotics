@@ -47,6 +47,7 @@ namespace Utilities
         public static LogTag COMM { get { return new LogTag("COMM"); } }
         public static LogTag CONFIG { get { return new LogTag("CONFIG"); } }
         public static LogTag FILEUTILITIES { get { return new LogTag("FILE-UTILITIES"); } }
+        public static LogTag MESSAGEPARSER { get { return new LogTag("MESSAGE-PARSER"); } }
         public static LogTag ROBOT { get { return new LogTag("ROBOT"); } }
         public static LogTag UI { get { return new LogTag("UI"); } }
 

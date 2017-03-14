@@ -10,14 +10,15 @@ namespace Robots
 {
     public class Robot
     {
-        public readonly float OBJECT_DETECT_DISTANCE = 0.5f;
+        public readonly float OBJECT_DETECT_DISTANCE = 1f;
         public readonly float VELOCITY = 3.0f;
         
         // TODO: does exposing these break encapsulation?
         public GameObject body;
+        public GameObject carriedResource;
         public Queue<CommMessage> unhandledMessages;
         public Rigidbody rigidbody;
-        private RobotSensors sensors;
+        public RobotSensors sensors;
 
         private readonly bool PRINT_ROBOT_DETECTION = false; // TODO move to config file, default false
         private readonly float COLLISION_NOTIFICATION_TIME = 1.0f;
@@ -41,6 +42,8 @@ namespace Robots
             this.body = body;
             this.id = id;
 
+            carriedResource = null;
+
             unhandledMessages = new Queue<CommMessage>();
             stateStack = new Stack<RobotState>();
             sensors = new RobotSensors(radarRange);
@@ -50,7 +53,6 @@ namespace Robots
 
             // Insert other states here to test without waiting for satellite
             {
-                
             }
 
             stateStack.Push(new RobotStateSleep(1.0f)); // allow robots time to fall to ground
@@ -100,6 +102,7 @@ namespace Robots
                 maxDistance = OBJECT_DETECT_DISTANCE;
 
             RaycastHit hitInfo;
+            Debug.DrawRay(body.transform.position, body.transform.forward, Color.red, 5.0f);
             if (Physics.Raycast(body.transform.position,
                                 body.transform.forward,
                                 out hitInfo,

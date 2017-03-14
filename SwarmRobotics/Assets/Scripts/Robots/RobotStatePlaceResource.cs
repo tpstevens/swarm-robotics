@@ -4,13 +4,15 @@ using Utilities;
 
 namespace Robots
 {
-    public class RobotStateTurn : RobotState
+    public class RobotStatePlaceResource : RobotState
     {
-        private readonly Vector2 targetPosition;
+        private static float placementDistance = 1.5f;
 
-        public RobotStateTurn(Vector2 targetPosition)
+        private Vector2 position;
+
+        public RobotStatePlaceResource(Vector2 position)
         {
-            this.targetPosition = targetPosition;
+            this.position = position;
         }
 
         /// <summary>
@@ -27,7 +29,16 @@ namespace Robots
             if (!initialized)
             {
                 initialized = true;
-                resume = true;  // Turn state requires same behavior when initializing and resuming
+
+                if (r.carriedResource != null)
+                {
+                    r.pushState(new RobotStateMove(position, placementDistance));
+                }
+                else
+                {
+                    Log.e(LogTag.ROBOT, "Initializing RobotPlaceResource, but robot isn't carrying anything.");
+                    finished = true;
+                }
             }
 
             ////////////////////////////////////////////////////////////////////////////////////////
@@ -36,20 +47,29 @@ namespace Robots
             if (resume)
             {
                 resume = false;
-                Log.d(LogTag.ROBOT, "TURN Robot " + r.id + " is turning towards target position " + targetPosition);
 
-                // Turn instantaneously
-                Vector3 target = new Vector3(targetPosition.x, r.body.transform.position.y, targetPosition.y);
-                r.body.transform.rotation = Quaternion.LookRotation(target - r.body.transform.position, Vector3.up);
+                Vector2 robotPosition = new Vector2(r.body.transform.position.x, 
+                                                    r.body.transform.position.z);
+                if (r.carriedResource != null 
+                    && Vector2.Distance(robotPosition, position) <= placementDistance)
+                {
+                    Log.w(LogTag.ROBOT, "Robot " + r.id + " has placed " + r.carriedResource.transform.name);
+
+                    r.carriedResource.transform.SetParent(null);
+                    r.carriedResource.transform.position = new Vector3(position.x, 0.5f, position.y);
+                    r.carriedResource.transform.rotation = new Quaternion();
+                    r.carriedResource = null;
+                }
+
                 finished = true;
             }
 
             ////////////////////////////////////////////////////////////////////////////////////////
-            // Update: no, already reached target angle
+            // Update: intentionally empty
             ////////////////////////////////////////////////////////////////////////////////////////
 
             ////////////////////////////////////////////////////////////////////////////////////////
-            // Process messages: no, should happen in another state
+            // Process messages: disabled here
             ////////////////////////////////////////////////////////////////////////////////////////
 
             ////////////////////////////////////////////////////////////////////////////////////////
@@ -57,7 +77,6 @@ namespace Robots
             ////////////////////////////////////////////////////////////////////////////////////////
             if (finished)
             {
-                // Pop state off the stack
                 r.popState();
             }
         }

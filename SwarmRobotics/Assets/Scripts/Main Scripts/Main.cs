@@ -294,10 +294,12 @@ public class Main : MonoBehaviour, MainInterface
             satelliteBody.transform.parent = EnvironmentObjects.transform;
             satelliteBody.transform.position = new Vector3(0, 15, 0);
 
-            Satellite = new Satellite(satelliteBody);
+            Satellite = new Satellite(satelliteBody, this);
 
             // Place resources
             resourceFactory = new ResourceFactory();
+            resourceFactory.createResourcePatch(0, 25, 0, new Vector2(25, 25), 4, 1, Color.blue);
+            WorldspaceUIFactory.createQuad("Resource Home", config.ResourceHomeRect, sceneMaterials.resourceHome);
         }
 
         return result;
@@ -380,7 +382,7 @@ public class Main : MonoBehaviour, MainInterface
                 {
                     for (uint j = 0; j < numRobotsRoot; ++j)
                     {
-                        float x = config.SpawnCenter.x - config.SpawnRadius + i * robotSpacing;
+                        float x = config.SpawnCenter.x - config.SpawnRadius + (numRobotsRoot - 1 - i) * robotSpacing;
                         float z = config.SpawnCenter.y - config.SpawnRadius + j * robotSpacing;
                         uint id = numRobotsRoot * i + j;
                         Vector3 position = new Vector3(x, RobotPrefab.transform.position.y, z);
@@ -410,7 +412,7 @@ public class Main : MonoBehaviour, MainInterface
 
             if (cmd == "construction")
             {
-                Satellite.broadcastMessage("construction\tstart");
+                Satellite.startConstruction();
             }
             else if (cmd == "test_message")
             {
@@ -427,10 +429,6 @@ public class Main : MonoBehaviour, MainInterface
                 {
                     Comm.directMessage(sender, receiver, "TEST DIRECT MESSAGE");
                 }
-            }
-            else if (cmd == "test_queue")
-            {
-                Satellite.broadcastMessage(cmd);
             }
             else
             {

@@ -53,6 +53,7 @@ namespace Robots
 
                 robotAgent = r.body.GetComponent<NavMeshAgent>();
                 robotAgent.speed = r.VELOCITY;
+                robotAgent.updateRotation = true;
 
                 if (robotAgent == null)
                 {
@@ -86,6 +87,7 @@ namespace Robots
             {
                 finished = true;
                 robotAgent.SetDestination(r.body.transform.position);
+                robotAgent.updateRotation = false;
             }
 
             ////////////////////////////////////////////////////////////////////////////////////////

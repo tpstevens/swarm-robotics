@@ -294,7 +294,7 @@ public class MainForaging : MonoBehaviour, MainInterface
             satelliteBody.name = "Satellite";
             satelliteBody.transform.parent = EnvironmentObjects.transform;
             satelliteBody.transform.position = new Vector3(0, 15, 0);
-            Satellite = new Satellite(satelliteBody);
+            Satellite = new Satellite(satelliteBody, this);
 
             // Create resources
             resourceFactory = new ResourceFactory();

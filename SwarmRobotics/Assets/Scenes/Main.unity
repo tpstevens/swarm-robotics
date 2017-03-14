@@ -352,6 +352,7 @@ MonoBehaviour:
     type: 2}
   sceneMaterials:
     resourceHome: {fileID: 2100000, guid: f8c68b171ba911c4e8907fd9087cbb88, type: 2}
+    resourcePatch: {fileID: 2100000, guid: d6e2fef045110014b80dba6aec2b2ae8, type: 2}
 --- !u!1 &888825454
 GameObject:
   m_ObjectHideFlags: 0

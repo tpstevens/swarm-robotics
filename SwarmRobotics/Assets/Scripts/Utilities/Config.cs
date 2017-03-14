@@ -17,6 +17,7 @@ namespace Utilities
         private float spawnRadius = 5.0f; // applies to both square and circle spawn shapes
         private float robotRadarRange = 10.0f;
         private int numRobots = 1;
+        private Rect resourceHomeRect = new Rect(new Vector2(20, 20), new Vector2(10, 10));
         private Vector2 spawnCenter = Vector2.zero;
 
         public bool CommShowInUnityConsole
@@ -68,6 +69,11 @@ namespace Utilities
         {
             get { return robotRadarRange; }
             set { if (value > 0) { robotRadarRange = value; } }
+        }
+
+        public Rect ResourceHomeRect
+        {
+            get { return resourceHomeRect; }
         }
 
         /// <summary>

@@ -44,7 +44,7 @@ namespace Robots
                 lastWaypoint = currentPosition;
                 nextWaypoint = queueWaypoints.Peek();
 
-                if (robotSpacing < r.body.transform.localScale.x * 2)
+                if (robotSpacing < r.body.transform.localScale.x)
                 {
                     Log.a(LogTag.ROBOT, "Cannot initialize queue with robot spacing that's less than 2x robot radius!");
                 }

@@ -74,9 +74,11 @@ public class ResourceFactory {
     {
         List<Vector2> positions = new List<Vector2>();
 
+        Vector2 temp;
         foreach (GameObject r in resources)
         {
-            positions.Add(r.transform.position);
+            temp = new Vector2(r.transform.position.x, r.transform.position.z);
+            positions.Add(temp);
         }
 
         return positions;

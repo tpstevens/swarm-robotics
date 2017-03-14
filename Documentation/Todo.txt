@@ -14,3 +14,15 @@ Split Main instantiation code into different methods
 Create parent Main object and override behaviors as necessary? Or split out common code like ground generation, resource placement, robot placement
 
 put constants (robot diameter, resource size, etc) in Constants file
+
+why use queues for waypoints...should use something else instead? want to be able to split queues. indexed arrays?
+
+algorithm for figuring out how soon to jump off the perimeter should prioritize closer to the end? or closer to front?
+
+set final position at start of construction state
+
+document code
+
+check queuing code (dynamic spacing isn't working so hot)
+
+create encoder for things like Vector2, queue, etc.
