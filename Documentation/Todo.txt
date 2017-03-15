@@ -26,3 +26,7 @@ check queuing code (dynamic spacing isn't working so hot)
 create encoder for things like Vector2, queue, etc.
 
 make it so robots don't have to stop when checking for running into next guy
+
+add visual indicators for queues, waypoints, etc
+
+add visual indicator for time speedup and slowdown
