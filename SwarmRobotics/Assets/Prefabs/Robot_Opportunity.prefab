@@ -1,0 +1,139 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 1142943868913620}
+  m_IsPrefabParent: 1
+--- !u!1 &1142943868913620
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4818302421175686}
+  - component: {fileID: 33558631939266926}
+  - component: {fileID: 23007684046958250}
+  - component: {fileID: 135555678624675020}
+  - component: {fileID: 195301614391531146}
+  - component: {fileID: 54488233512730522}
+  m_Layer: 8
+  m_Name: Robot_Opportunity
+  m_TagString: Robot
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4818302421175686
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1142943868913620}
+  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -13.012918, y: 0.29277718, z: 16.49497}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!23 &23007684046958250
+MeshRenderer:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1142943868913620}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_Materials:
+  - {fileID: 2100000, guid: b0c9005ce26235e4f9185d5dd7a1c6d3, type: 2}
+  - {fileID: 2100000, guid: 72897d035f15be5428b10c4c73e0bb86, type: 2}
+  - {fileID: 2100000, guid: 636c6b1ecb0b30c4fb1f41b993af3b7b, type: 2}
+  - {fileID: 2100000, guid: 5f43edec3344a2245ab9464859c2546f, type: 2}
+  - {fileID: 2100000, guid: 9033338964d7efa4ab52cb5072efcfa7, type: 2}
+  - {fileID: 2100000, guid: 470ffecea6ee21240bea58d41cd5c89f, type: 2}
+  - {fileID: 2100000, guid: 8b59490eba05087489fd0c8fcc02d62c, type: 2}
+  - {fileID: 2100000, guid: ac4b2fad7f404654aa1ce23edd33a67f, type: 2}
+  - {fileID: 2100000, guid: 4f21dbb68289ba9478e02f9f3b318bc6, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+--- !u!33 &33558631939266926
+MeshFilter:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1142943868913620}
+  m_Mesh: {fileID: 4300000, guid: 07c2e6c72f76a5540b0dd23bba72868e, type: 3}
+--- !u!54 &54488233512730522
+Rigidbody:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1142943868913620}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 1
+--- !u!135 &135555678624675020
+SphereCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1142943868913620}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.62
+  m_Center: {x: -0.0075651705, y: 0.15154496, z: -0.03}
+--- !u!195 &195301614391531146
+NavMeshAgent:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1142943868913620}
+  m_Enabled: 1
+  m_Radius: 0.6
+  m_Speed: 3
+  m_Acceleration: 100
+  avoidancePriority: 0
+  m_AngularSpeed: 180
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 0.57
+  m_BaseOffset: 0.27
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4

@@ -17,7 +17,6 @@ namespace Robots
         public GameObject body;
         public GameObject carriedResource;
         public Queue<CommMessage> unhandledMessages;
-        public Rigidbody rigidbody;
         public RobotSensors sensors;
 
         private readonly bool PRINT_ROBOT_DETECTION = false; // TODO move to config file, default false
@@ -59,29 +58,19 @@ namespace Robots
 
             body.name = "Robot " + id;
             body.transform.position = startPosition;
-            rigidbody = body.GetComponent<Rigidbody>();
+            body.transform.rotation = Quaternion.AngleAxis(startRotation, Vector3.up);
 
-            if (rigidbody == null)
+            GameObject robotHeader = GameObject.Find("Robots");
+            if (robotHeader == null) 
             {
-                Log.e(LogTag.ROBOT, "Failed to find rigidbody on robot " + id);
+                Log.w(LogTag.ROBOT, "Created Robots header object");
+
+                robotHeader = new GameObject("Robots");
+                robotHeader.transform.position = Vector3.zero;
+                robotHeader.transform.rotation = new Quaternion(0f, 0f, 0f, 0f);
             }
-            else
-            {
-                rigidbody.position = startPosition;
-                rigidbody.rotation = Quaternion.AngleAxis(startRotation, Vector3.up);
 
-                GameObject robotHeader = GameObject.Find("Robots");
-                if (robotHeader == null) 
-                {
-                    Log.w(LogTag.ROBOT, "Created Robots header object");
-
-                    robotHeader = new GameObject("Robots");
-                    robotHeader.transform.position = Vector3.zero;
-                    robotHeader.transform.rotation = new Quaternion(0f, 0f, 0f, 0f);
-                }
-
-                body.transform.parent = robotHeader.transform;
-            }
+            body.transform.parent = robotHeader.transform;
         }
 
         /// <summary>
@@ -116,7 +105,7 @@ namespace Robots
 
         public float getOrientation()
         {
-            return Vector3.Angle(Vector3.forward, rigidbody.transform.forward);
+            return Vector3.Angle(Vector3.forward, body.transform.forward);
         }
 
         /// <summary>

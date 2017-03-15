@@ -75,16 +75,20 @@ namespace CommSystem
             {
                 placementSpacing = 1.0f;
                 resourcePlacements = new Queue<Vector2>();
+                Stack<Vector2> reversePlacements = new Stack<Vector2>();
 
                 for (int i = -1; i < 2; ++i)
-                    resourcePlacements.Enqueue(new Vector2(i * placementSpacing, placementSpacing));
+                    reversePlacements.Push(new Vector2(i * placementSpacing, placementSpacing));
 
-                resourcePlacements.Enqueue(new Vector2(placementSpacing, 0));
+                reversePlacements.Push(new Vector2(placementSpacing, 0));
 
                 for (int i = 1; i >= -1; --i)
-                    resourcePlacements.Enqueue(new Vector2(i * placementSpacing, -1 * placementSpacing));
+                    reversePlacements.Push(new Vector2(i * placementSpacing, -1 * placementSpacing));
 
-                resourcePlacements.Enqueue(new Vector2(-1 * placementSpacing, 0));
+                reversePlacements.Push(new Vector2(-1 * placementSpacing, 0));
+
+                while (reversePlacements.Count > 0)
+                    resourcePlacements.Enqueue(reversePlacements.Pop());
             }
 
             // Initialize construction perimeter for first layer
@@ -97,30 +101,34 @@ namespace CommSystem
                 constructionPerimeter.Add(new Vector2(2 * placementSpacing, -2f * placementSpacing));
                 constructionPerimeter.Add(new Vector2(-2 * placementSpacing, -2f * placementSpacing));
                 constructionPerimeter.Add(new Vector2(-2 * placementSpacing, placementSpacing));
-                constructionPerimeter.Add(new Vector2(-3 * placementSpacing, placementSpacing));
+                constructionPerimeter.Add(new Vector2(-5 * placementSpacing, placementSpacing));
+                constructionPerimeter.Add(new Vector2(-5 * placementSpacing, 5 * placementSpacing));
             }
 
             // Initialize first layer and add to layers list
             structureLayers.Enqueue(new StructureLayer(constructionPerimeter, resourcePlacements));
             totalRequiredResources += resourcePlacements.Count;
 
-
             // Initialize resource placements for the second layer
             {
                 placementSpacing = 1.5f;
                 resourcePlacements = new Queue<Vector2>();
+                Stack<Vector2> reversePlacements = new Stack<Vector2>();
 
                 for (int i = -2; i <= 2; ++i)
-                    resourcePlacements.Enqueue(new Vector2(i * placementSpacing, 2 * placementSpacing));
+                    reversePlacements.Push(new Vector2(i * placementSpacing, 2 * placementSpacing));
 
                 for (int i = 1; i >= -1; --i)
-                    resourcePlacements.Enqueue(new Vector2(2 * placementSpacing, i * placementSpacing));
+                    reversePlacements.Push(new Vector2(2 * placementSpacing, i * placementSpacing));
 
                 for (int i = 2; i >= -2; --i)
-                    resourcePlacements.Enqueue(new Vector2(i * placementSpacing, -2 * placementSpacing));
+                    reversePlacements.Push(new Vector2(i * placementSpacing, -2 * placementSpacing));
 
                 for (int i = -1; i <= 1; ++i)
-                    resourcePlacements.Enqueue(new Vector2(-2 * placementSpacing, i * placementSpacing));
+                    reversePlacements.Push(new Vector2(-2 * placementSpacing, i * placementSpacing));
+
+                while (reversePlacements.Count > 0)
+                    resourcePlacements.Enqueue(reversePlacements.Pop());
             }
 
             // Initialize construction perimeter for second layer

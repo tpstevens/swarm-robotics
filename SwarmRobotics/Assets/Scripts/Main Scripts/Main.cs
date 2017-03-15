@@ -17,6 +17,7 @@ public class Main : MonoBehaviour, MainInterface
     public GameObject RobotObjects;
     public GameObject RobotPrefab;
     public GameObject MessageIndicatorPrefab;
+    public GameObject SatellitePrefab;
     public SceneMaterials sceneMaterials;
 
     private Config currentConfig;
@@ -28,6 +29,8 @@ public class Main : MonoBehaviour, MainInterface
     [System.Serializable]
     public class SceneMaterials
     {
+        public Material groundBorder;
+        public Material resource;
         public Material resourceHome;
         public Material resourcePatch;
     }
@@ -287,18 +290,42 @@ public class Main : MonoBehaviour, MainInterface
                                                        config.GroundLength / -2.0f - 0.05f);
             negativeZ.transform.parent = Ground.transform;
 
+            // Add material to barriers
+            if (sceneMaterials.groundBorder != null)
+            {
+                negativeX.GetComponent<Renderer>().material = sceneMaterials.groundBorder;
+                negativeZ.GetComponent<Renderer>().material = sceneMaterials.groundBorder;
+                positiveX.GetComponent<Renderer>().material = sceneMaterials.groundBorder;
+                positiveZ.GetComponent<Renderer>().material = sceneMaterials.groundBorder;
+            }
+
             // Create satellite
-            GameObject satelliteBody = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            GameObject satelliteBody;
+
+            if (SatellitePrefab == null)
+            {
+                satelliteBody = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                satelliteBody.transform.position = new Vector3(0, 15, 0);
+            }
+            else
+            {
+                satelliteBody = GameObject.Instantiate(SatellitePrefab);
+                satelliteBody.GetComponent<Rigidbody>().AddTorque(Vector3.up * 20);
+            }
+
             satelliteBody.tag = "Satellite";
             satelliteBody.name = "Satellite";
             satelliteBody.transform.parent = EnvironmentObjects.transform;
-            satelliteBody.transform.position = new Vector3(0, 15, 0);
 
             Satellite = new Satellite(satelliteBody, this);
 
             // Place resources
             resourceFactory = new ResourceFactory();
-            resourceFactory.createResourcePatch(0, 25, 0, new Vector2(25, 25), 4, 1, Color.blue);
+            if (sceneMaterials.resource != null)
+                resourceFactory.createResourcePatch(0, 25, 0, new Vector2(25, 25), 4, 1, sceneMaterials.resource);
+            else
+                resourceFactory.createResourcePatch(0, 25, 0, new Vector2(25, 25), 4, 1, Color.blue);
+
             WorldspaceUIFactory.createQuad("Resource Home", config.ResourceHomeRect, sceneMaterials.resourceHome);
         }
 
@@ -413,6 +440,8 @@ public class Main : MonoBehaviour, MainInterface
             if (cmd == "construction")
             {
                 Satellite.startConstruction();
+                console.toggle();
+                ApplicationManager.unpause();
             }
             else if (cmd == "test_message")
             {

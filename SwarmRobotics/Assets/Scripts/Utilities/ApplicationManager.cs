@@ -11,6 +11,7 @@ namespace Utilities
     {
         public static readonly int LAYER_ROBOTS = 8;
         public static readonly int LAYER_MESSAGES = 9;
+        public static readonly int LAYER_RESOURCES = 10;
 
         private static bool handledQuitEvent = false;
         private static int[] timeScales = { 1, 2, 4, 8 };
@@ -82,12 +83,24 @@ namespace Utilities
 
         }
 
+        public static void pause()
+        {
+            if (Time.timeScale != 0.0f)
+                Time.timeScale = 0.0f;
+        }
+
         public static void togglePause()
         {
             if (Time.timeScale == 0.0f)
                 Time.timeScale = timeScales[currentTimeScale];
             else
                 Time.timeScale = 0.0f;
+        }
+
+        public static void unpause()
+        {
+            if (Time.timeScale == 0.0f)
+                Time.timeScale = timeScales[currentTimeScale];
         }
     }
 }

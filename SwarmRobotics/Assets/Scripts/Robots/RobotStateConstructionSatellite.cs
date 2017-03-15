@@ -165,6 +165,7 @@ namespace Robots
                                 r.pushState(new RobotStateQueue(placementToEndPerimeter, 2f));
                                 r.pushState(new RobotStatePlaceResource(msgData.resourcePlacement));
                                 r.pushState(new RobotStateQueue(startToPlacementPerimeter, 2f));
+                                r.pushState(new RobotStateMove(msgData.resourceOrigin + new Vector2(0, -10)));
                                 r.pushState(new RobotStateRetrieveResource(msgData.resourceOrigin));
                             }
                             else
