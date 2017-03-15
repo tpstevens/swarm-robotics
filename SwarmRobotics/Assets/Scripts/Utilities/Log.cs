@@ -49,6 +49,7 @@ namespace Utilities
         public static LogTag FILEUTILITIES { get { return new LogTag("FILE-UTILITIES"); } }
         public static LogTag MESSAGEPARSER { get { return new LogTag("MESSAGE-PARSER"); } }
         public static LogTag ROBOT { get { return new LogTag("ROBOT"); } }
+        public static LogTag SATELLITE { get { return new LogTag("SATELLITE"); } }
         public static LogTag UI { get { return new LogTag("UI"); } }
 
         private LogTag(string value)

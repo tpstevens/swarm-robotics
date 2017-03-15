@@ -54,8 +54,10 @@ namespace Robots
                     && Vector2.Distance(robotPosition, position) <= placementDistance)
                 {
                     Log.w(LogTag.ROBOT, "Robot " + r.id + " has placed " + r.carriedResource.transform.name);
+                    GameObject resourceHeader = GameObject.Find("Resources");
+                    Transform t = resourceHeader != null ? resourceHeader.transform : null;
 
-                    r.carriedResource.transform.SetParent(null);
+                    r.carriedResource.transform.SetParent(t);
                     r.carriedResource.transform.position = new Vector3(position.x, 0.5f, position.y);
                     r.carriedResource.transform.rotation = new Quaternion();
                     r.carriedResource = null;
