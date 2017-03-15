@@ -36,7 +36,6 @@ namespace CommSystem
         public readonly Queue<Vector2> resourceOrigins;
         public readonly Queue<Vector2> waitQueue;
 
-        private int totalAvailableResources = 0;
         private int totalRequiredResources = 0;
         private MainInterface mainScript;
         private Queue<StructureLayer> structureLayers;
@@ -56,7 +55,6 @@ namespace CommSystem
             List<Vector2> resourceOriginList;
             mainScript.getResourcePositions(out resourceOriginList);
             resourceOrigins = new Queue<Vector2>(resourceOriginList);
-            totalAvailableResources = resourceOrigins.Count;
 
             // Initialize wait queue
             waitQueue = new Queue<Vector2>();

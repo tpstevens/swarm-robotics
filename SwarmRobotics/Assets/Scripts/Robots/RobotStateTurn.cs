@@ -7,6 +7,12 @@ namespace Robots
     public class RobotStateTurn : RobotState
     {
         private readonly Vector2 targetPosition;
+        private readonly float angularSpeed = 180f;
+
+        private float timeTaken = 0;
+        private float timeToTurn = 0;
+        private Quaternion initialRotation;
+        private Quaternion targetRotation;
 
         public RobotStateTurn(Vector2 targetPosition)
         {
@@ -36,17 +42,37 @@ namespace Robots
             if (resume)
             {
                 resume = false;
-                Log.d(LogTag.ROBOT, "TURN Robot " + r.id + " is turning towards target position " + targetPosition);
 
-                // Turn instantaneously
+                initialRotation = r.body.transform.rotation;
+
                 Vector3 target = new Vector3(targetPosition.x, r.body.transform.position.y, targetPosition.y);
-                r.body.transform.rotation = Quaternion.LookRotation(target - r.body.transform.position, Vector3.up);
-                finished = true;
+                targetRotation = Quaternion.LookRotation(target - r.body.transform.position, Vector3.up);
+
+                float angle = Quaternion.Angle(initialRotation, targetRotation);
+
+                while (angle < 0)
+                    angle += 360;
+
+                if (angle > 180)
+                    angle = 360 - 180;
+
+                timeToTurn = angle / angularSpeed;
             }
 
             ////////////////////////////////////////////////////////////////////////////////////////
-            // Update: no, already reached target angle
+            // Update
             ////////////////////////////////////////////////////////////////////////////////////////
+            if (timeTaken < timeToTurn)
+            {
+                timeTaken += Time.deltaTime;
+                float progress = timeTaken / timeToTurn;
+                float sphericalProgress = progress - Mathf.Sin(2 * Mathf.PI * progress) / (2 * Mathf.PI);// Mathf.Atan(10 * (progress - 0.5f)) / 2.8f + 0.5f;// (Mathf.Cos(2 * Mathf.PI * progress + Mathf.PI) + 1) / 2.0f;
+                r.body.transform.rotation = Quaternion.Lerp(initialRotation, targetRotation, sphericalProgress);
+            }
+            else
+            {
+                finished = true;
+            }
 
             ////////////////////////////////////////////////////////////////////////////////////////
             // Process messages: no, should happen in another state

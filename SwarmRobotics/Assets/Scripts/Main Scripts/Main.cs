@@ -3,6 +3,7 @@ using UnityEngine.SceneManagement;
 
 using System.Collections.Generic;
 
+using Cameras;
 using CommSystem;
 using Robots;
 using UserInterface;
@@ -10,7 +11,7 @@ using Utilities;
 
 public class Main : MonoBehaviour, MainInterface
 {
-    public Camera overheadCamera;
+    public Cameras cameras;
     public ConsoleLine console;
     public GameObject EnvironmentObjects;
     public GameObject Ground;
@@ -25,6 +26,27 @@ public class Main : MonoBehaviour, MainInterface
     private ResourceFactory resourceFactory;
     private Robot[] robots;
     private Satellite Satellite;
+
+    [System.Serializable]
+    public class Cameras
+    {
+        public Camera overheadCamera;
+        public FollowCamera followCamera;
+
+        private bool overheadActive = true;
+
+        public bool isOverheadActive()
+        {
+            return overheadActive;
+        }
+
+        public void toggleCameras()
+        {
+            overheadActive = !overheadActive;
+            overheadCamera.gameObject.SetActive(overheadActive);
+            followCamera.gameObject.SetActive(!overheadActive);
+        }
+    }
 
     [System.Serializable]
     public class SceneMaterials
@@ -428,6 +450,9 @@ public class Main : MonoBehaviour, MainInterface
             Log.a(LogTag.MAIN, "Spawn shape must be a square.");
         }
 
+        // cameras.followCamera.setTarget(robots[0].body);
+        cameras.followCamera.gameObject.SetActive(false);
+
         return result;
     }
 
@@ -488,6 +513,35 @@ public class Main : MonoBehaviour, MainInterface
             {
                 ApplicationManager.reloadScene();
             }
+            else if (!console.isActive() && Input.GetMouseButtonDown(0))
+            {
+                int layerMask = 1 << ApplicationManager.LAYER_ROBOTS;
+                RaycastHit hitInfo;
+
+                if (cameras.isOverheadActive())
+                {
+                    Ray ray = cameras.overheadCamera.ScreenPointToRay(Input.mousePosition);
+
+                    if (Physics.Raycast(ray, out hitInfo, 1000, layerMask))
+                    {
+                        cameras.toggleCameras();
+                        cameras.followCamera.setTarget(hitInfo.transform.gameObject);
+                    }
+                }
+                else
+                {
+                    Ray ray = cameras.followCamera.cam.ScreenPointToRay(Input.mousePosition);
+
+                    if (Physics.Raycast(ray, out hitInfo, 1000, layerMask))
+                    {
+                        cameras.followCamera.setTarget(hitInfo.transform.gameObject);
+                    }
+                    else
+                    {
+                        cameras.toggleCameras();
+                    }
+                }
+            }
             else if (Input.GetKeyDown(KeyCode.P) || Input.GetKeyDown(KeyCode.Space))
             {
                 ApplicationManager.togglePause();
@@ -518,17 +572,17 @@ public class Main : MonoBehaviour, MainInterface
     /// <param name="config">The current Config.</param>
     private void repositionCameras(Config config)
     {
-        if (overheadCamera == null)
+        if (cameras.overheadCamera == null)
         {
             Log.e(LogTag.MAIN, "Reference to overhead camera is NULL");
         }
         else
         {
-            overheadCamera.transform.position = new Vector3(config.GroundLength,
-                                                            0.8f * config.GroundLength, 
-                                                            -1.0f * config.GroundLength);
-            overheadCamera.orthographic = true;
-            overheadCamera.orthographicSize = config.GroundLength * 0.42f;
+            cameras.overheadCamera.transform.position = new Vector3(config.GroundLength,
+                                                                    0.8f * config.GroundLength, 
+                                                                    -1.0f * config.GroundLength);
+            cameras.overheadCamera.orthographic = true;
+            cameras.overheadCamera.orthographicSize = config.GroundLength * 0.42f;
         }
     }
 

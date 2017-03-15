@@ -14,8 +14,8 @@ namespace Utilities
         public static readonly int LAYER_RESOURCES = 10;
 
         private static bool handledQuitEvent = false;
-        private static int[] timeScales = { 1, 2, 4, 8 };
-        private static int currentTimeScale = 0;
+        private static float[] timeScales = { 0.25f, 0.5f, 1, 2, 4, 8 };
+        private static int currentTimeScale = 2;
 
         public static void decreaseSimulationSpeed()
         {

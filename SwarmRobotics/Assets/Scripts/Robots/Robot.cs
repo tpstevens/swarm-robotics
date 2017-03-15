@@ -91,7 +91,6 @@ namespace Robots
                 maxDistance = OBJECT_DETECT_DISTANCE;
 
             RaycastHit hitInfo;
-            Debug.DrawRay(body.transform.position, body.transform.forward, Color.red, 5.0f);
             if (Physics.Raycast(body.transform.position,
                                 body.transform.forward,
                                 out hitInfo,

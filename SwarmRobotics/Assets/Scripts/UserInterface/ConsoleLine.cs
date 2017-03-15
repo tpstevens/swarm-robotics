@@ -61,6 +61,11 @@ namespace UserInterface
             return active;
         }
 
+        public bool isActive()
+        {
+            return input.IsActive();
+        }
+
         /// <summary>
         /// Returns whether the console is active and has user focus.
         /// </summary>

@@ -9,7 +9,8 @@ namespace Robots
     {
         private readonly float tolerance = 0.01f;
         private readonly float stoppingDistance;
-
+        
+        private bool hasRotated = false;
         private NavMeshAgent robotAgent;
         private Vector3 targetPosition;
 
@@ -41,6 +42,19 @@ namespace Robots
                 initialized = true;
                 resume = true;
 
+                robotAgent = r.body.GetComponent<NavMeshAgent>();
+
+                if (robotAgent != null)
+                {
+                    robotAgent.avoidancePriority = (int)r.id + 1;
+                    robotAgent.speed = r.VELOCITY;
+                }
+                else
+                {
+                    Log.a(LogTag.ROBOT, "Robot " + r.id + " does not have attached NavMeshAgent");
+                    return;
+                }
+
                 targetPosition.y = r.body.transform.position.y;
             }
 
@@ -51,19 +65,17 @@ namespace Robots
             {
                 resume = false;
 
-                robotAgent = r.body.GetComponent<NavMeshAgent>();
-                robotAgent.speed = r.VELOCITY;
-                robotAgent.updateRotation = true;
-
-                if (robotAgent == null)
+                if (!hasRotated)
                 {
-                    Log.a(LogTag.ROBOT, "Robot " + r.id + " does not have attached NavMeshAgent");
+                    robotAgent.updateRotation = false;
+                    r.pushState(new RobotStateTurn(new Vector2(targetPosition.x, targetPosition.z)));
+                    hasRotated = true;
                     return;
                 }
                 else
                 {
+                    robotAgent.updateRotation = true;
                     robotAgent.SetDestination(targetPosition);
-                    robotAgent.avoidancePriority = (int)r.id + 1;
                 }
             }
 
@@ -79,7 +91,7 @@ namespace Robots
                 else
                 {
                     Log.d(LogTag.ROBOT, "Robot " + r.id + " cannot reach its destination. Waiting for path to open up.");
-                    robotAgent.SetDestination(targetPosition);
+                    // robotAgent.SetDestination(targetPosition);
                     r.pushState(new RobotStateSleep(1.0f));
                 }
             }
