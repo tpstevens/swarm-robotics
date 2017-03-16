@@ -14,6 +14,7 @@ namespace CommSystem
         private MainInterface mainScript;
         private Queue<CommMessage> unhandledMessages;
         private SatelliteStateConstruction constructionState = null;
+        private SatelliteStateForaging foragingState = null;
 
         public Satellite(GameObject body, MainInterface mainScript)
         {
@@ -64,15 +65,33 @@ namespace CommSystem
             }
         }
 
+        public void startForaging()
+        {
+            if (foragingState == null)
+            {
+                foragingState = new SatelliteStateForaging(this, mainScript);
+            }
+            else
+            {
+                Log.e(LogTag.SATELLITE, "Satellite already in foraging state.");
+            }
+        }
+
         public void update()
         {
             while (unhandledMessages.Count > 0)
             {
                 CommMessage msg = unhandledMessages.Dequeue();
 
-                if (msg.text.StartsWith("construction") && constructionState != null)
+                if (msg.text.StartsWith("construction"))
                 {
-                    constructionState.handleMessage(msg);
+                    if (constructionState != null)
+                        constructionState.handleMessage(msg);
+                }
+                else
+                {
+                    if (foragingState != null)
+                        foragingState.handleMessage(msg);
                 }
             }
         }

@@ -54,6 +54,21 @@ namespace CommSystem
             // Initialize resource origins
             List<Vector2> resourceOriginList;
             mainScript.getResourcePositions(out resourceOriginList);
+            resourceOriginList.Sort(delegate (Vector2 a, Vector2 b) {
+                float difference;
+
+                if (a.x == b.x)
+                {
+                    difference = a.y - b.y;
+                }
+                else
+                {
+                    difference = a.x - b.x;
+                }
+
+                return (difference == 0) ? 0 : ((difference > 0) ? 1 : -1);
+            });
+
             resourceOrigins = new Queue<Vector2>(resourceOriginList);
 
             // Initialize wait queue

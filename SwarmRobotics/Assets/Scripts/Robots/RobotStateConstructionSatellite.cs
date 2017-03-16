@@ -225,7 +225,8 @@ namespace Robots
                                                                  resourcePlacement,
                                                                  out segmentBreak);
 
-                if (distance < closestDistance)
+                if (distance < closestDistance) // using '<=' instead of '<' should get us closer to the end, 
+                                                // but doesn't match up nicely with how perimeter is defined
                 {
                     closestDistance = distance;
                     closestSegmentIndex = i;

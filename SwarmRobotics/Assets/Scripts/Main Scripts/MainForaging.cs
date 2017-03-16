@@ -249,8 +249,8 @@ public class MainForaging : MonoBehaviour, MainInterface
             Ground.tag = "Ground";
 
             // Position and scale ground according to configuration
-            Ground.transform.localScale = new Vector3(scaledGroundLength, 
-                                                      1.0f, 
+            Ground.transform.localScale = new Vector3(scaledGroundLength,
+                                                      1.0f,
                                                       scaledGroundLength);
             Ground.transform.position = Vector3.zero;
             Ground.transform.SetParent(EnvironmentObjects.transform);
@@ -259,32 +259,32 @@ public class MainForaging : MonoBehaviour, MainInterface
             GameObject positiveX = GameObject.CreatePrimitive(PrimitiveType.Cube);
             positiveX.name = "Positive X";
             positiveX.transform.localScale = new Vector3(0.1f, 0.25f, config.GroundLength + 0.2f);
-            positiveX.transform.position = new Vector3(config.GroundLength / 2.0f + 0.05f, 
-                                                       0.125f, 
+            positiveX.transform.position = new Vector3(config.GroundLength / 2.0f + 0.05f,
+                                                       0.125f,
                                                        0.0f);
             positiveX.transform.parent = EnvironmentObjects.transform;
 
             GameObject negativeX = GameObject.CreatePrimitive(PrimitiveType.Cube);
             negativeX.name = "Negative X";
             negativeX.transform.localScale = new Vector3(0.1f, 0.25f, config.GroundLength + 0.2f);
-            negativeX.transform.position = new Vector3(config.GroundLength / -2.0f - 0.05f, 
-                                                       0.125f, 
+            negativeX.transform.position = new Vector3(config.GroundLength / -2.0f - 0.05f,
+                                                       0.125f,
                                                        0.0f);
             negativeX.transform.parent = EnvironmentObjects.transform;
 
             GameObject positiveZ = GameObject.CreatePrimitive(PrimitiveType.Cube);
             positiveZ.name = "Positive Z";
             positiveZ.transform.localScale = new Vector3(config.GroundLength + 0.2f, 0.25f, 0.1f);
-            positiveZ.transform.position = new Vector3(0.0f, 
-                                                       0.125f, 
+            positiveZ.transform.position = new Vector3(0.0f,
+                                                       0.125f,
                                                        config.GroundLength / 2.0f + 0.05f);
             positiveZ.transform.parent = EnvironmentObjects.transform;
 
             GameObject negativeZ = GameObject.CreatePrimitive(PrimitiveType.Cube);
             negativeZ.name = "Negative Z";
             negativeZ.transform.localScale = new Vector3(config.GroundLength + 0.2f, 0.25f, 0.1f);
-            negativeZ.transform.position = new Vector3(0.0f, 
-                                                       0.125f, 
+            negativeZ.transform.position = new Vector3(0.0f,
+                                                       0.125f,
                                                        config.GroundLength / -2.0f - 0.05f);
             negativeZ.transform.parent = EnvironmentObjects.transform;
 
@@ -301,13 +301,19 @@ public class MainForaging : MonoBehaviour, MainInterface
             uint startId = 0;
             for (uint i = 0; i < 3; i++)
             {
+                // random resource generator code
+                //avoid the center be in the center of the Robots home
+                //uint sideLength = (uint)(Random.Range(1, 4));
+                //startId = resourceFactory.createResourcePatch(i, sideLength * sideLength, startId, center, 1.5f, 1.0f, Color.blue, sceneMaterials.resourcePatch);
+
+                // only adds 3 resource batches
                 Vector2 center = new Vector2(Random.Range(-25.0f, 25.0f), Random.Range(-25.0f, 25.0f));
-                uint sideLength = (uint)(Random.Range(1, 4));
+                uint sideLength = 3;
                 startId = resourceFactory.createResourcePatch(i, sideLength * sideLength, startId, center, 1.5f, 1.0f, Color.blue, sceneMaterials.resourcePatch);
             }
 
             // Create Resource Home
-            WorldspaceUIFactory.createQuad("Resource Home", new Rect(Vector2.zero, new Vector2(10, 10)), sceneMaterials.resourceHome);
+            WorldspaceUIFactory.createQuad("Resource Home", new Rect(new Vector2(17, 17), new Vector2(10, 10)), sceneMaterials.resourceHome);
         }
 
         return result;
@@ -395,8 +401,8 @@ public class MainForaging : MonoBehaviour, MainInterface
                         uint id = numRobotsRoot * i + j;
                         Vector3 position = new Vector3(x, RobotPrefab.transform.position.y, z);
                         robots[numRobotsRoot * i + j] = new Robot(id,
-                                                                  Instantiate(RobotPrefab), 
-                                                                  position, 
+                                                                  Instantiate(RobotPrefab),
+                                                                  position,
                                                                   0.0f,
                                                                   config.RobotRadarRange);
                     }
@@ -412,7 +418,8 @@ public class MainForaging : MonoBehaviour, MainInterface
         return result;
     }
 
-    private void processConsoleCommands() {
+    private void processConsoleCommands()
+    {
         while (queuedConsoleCommands.Count > 0)
         {
             string cmd = queuedConsoleCommands.Dequeue().ToLower();
@@ -420,6 +427,10 @@ public class MainForaging : MonoBehaviour, MainInterface
             if (cmd == "construction")
             {
                 Satellite.broadcastMessage("construction\tstart");
+            }
+            else if (cmd == "forage")
+            {
+                Satellite.startForaging();
             }
             else if (cmd == "test_message")
             {
@@ -499,7 +510,7 @@ public class MainForaging : MonoBehaviour, MainInterface
         else
         {
             overheadCamera.transform.position = new Vector3(config.GroundLength,
-                                                            0.8f * config.GroundLength, 
+                                                            0.8f * config.GroundLength,
                                                             -1.0f * config.GroundLength);
             overheadCamera.orthographic = true;
             overheadCamera.orthographicSize = config.GroundLength * 0.42f;

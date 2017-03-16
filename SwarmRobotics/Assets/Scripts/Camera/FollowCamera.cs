@@ -13,7 +13,7 @@ namespace Cameras
         {
             cam = GetComponent<Camera>();
             cam.orthographic = true;
-            cam.orthographicSize = 3;
+            cam.orthographicSize = 4;
 
             targetOffset = new Vector3(25, 20.5f, -25);
         }

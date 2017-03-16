@@ -341,12 +341,24 @@ public class Main : MonoBehaviour, MainInterface
 
             Satellite = new Satellite(satelliteBody, this);
 
+//            // Place resources
+//            resourceFactory = new ResourceFactory();
+//            if (sceneMaterials.resource != null)
+//                resourceFactory.createResourcePatch(0, 25, 0, new Vector2(25, 25), 4, 1, sceneMaterials.resource);
+//            else
+//                resourceFactory.createResourcePatch(0, 25, 0, new Vector2(25, 25), 4, 1, Color.blue);
+
             // Place resources
             resourceFactory = new ResourceFactory();
-            if (sceneMaterials.resource != null)
-                resourceFactory.createResourcePatch(0, 25, 0, new Vector2(25, 25), 4, 1, sceneMaterials.resource);
-            else
-                resourceFactory.createResourcePatch(0, 25, 0, new Vector2(25, 25), 4, 1, Color.blue);
+            resourceFactory.createResourcePatch(0, 4, 0, new Vector2(-20, -20), 1f, 1, sceneMaterials.resource, sceneMaterials.resourcePatch);
+            resourceFactory.createResourcePatch(1, 4, 4, new Vector2(-15, 10), 1f, 1, sceneMaterials.resource, sceneMaterials.resourcePatch);
+            resourceFactory.createResourcePatch(2, 4, 8, new Vector2(26, -14), 1f, 1, sceneMaterials.resource, sceneMaterials.resourcePatch);
+            resourceFactory.createResourcePatch(3, 4, 12, new Vector2(18, 8), 1f, 1, sceneMaterials.resource, sceneMaterials.resourcePatch);
+            resourceFactory.createResourcePatch(4, 4, 16, new Vector2(13, -18), 1f, 1, sceneMaterials.resource, sceneMaterials.resourcePatch);
+            resourceFactory.createResourcePatch(5, 1, 20, new Vector2(6, -4), 0.5f, 1, sceneMaterials.resource, sceneMaterials.resourcePatch);
+            resourceFactory.createResourcePatch(6, 1, 21, new Vector2(-24, -3), 0.5f, 1, sceneMaterials.resource, sceneMaterials.resourcePatch);
+            resourceFactory.createResourcePatch(7, 1, 22, new Vector2(-7, -11), 0.5f, 1, sceneMaterials.resource, sceneMaterials.resourcePatch);
+            resourceFactory.createResourcePatch(8, 1, 23, new Vector2(8, 23), 0.5f, 1, sceneMaterials.resource, sceneMaterials.resourcePatch);
 
             WorldspaceUIFactory.createQuad("Resource Home", config.ResourceHomeRect, sceneMaterials.resourceHome);
         }
@@ -405,8 +417,7 @@ public class Main : MonoBehaviour, MainInterface
                 RobotObjects.transform.rotation = new Quaternion(0f, 0f, 0f, 0f);
             }
         }
-
-
+        
         if (config.SpawnShape == Config.eSpawnShape.SQUARE)
         {
             uint numRobotsRoot = (uint)Mathf.Sqrt(config.NumRobots);
@@ -465,6 +476,12 @@ public class Main : MonoBehaviour, MainInterface
             if (cmd == "construction")
             {
                 Satellite.startConstruction();
+                console.toggle();
+                ApplicationManager.unpause();
+            }
+            else if (cmd == "forage")
+            {
+                Satellite.startForaging();
                 console.toggle();
                 ApplicationManager.unpause();
             }

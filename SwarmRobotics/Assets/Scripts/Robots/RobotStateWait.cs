@@ -56,6 +56,10 @@ namespace Robots
                     {
                         r.pushState(new RobotStateConstructionSatellite(r, msg));
                     }
+                    else if (msg.text == "foraging\tstart")
+                    {
+                        r.pushState(new RobotStateForaging());
+                    }
                     else if (msg.text == "test")
                     {
                         Log.w(LogTag.ROBOT, "Robot " + r.id + " performing test.");

@@ -69,7 +69,7 @@ namespace Robots
                     else
                     {
                         Log.e(LogTag.ROBOT, "Robot " + r.id + " isn't facing any resources");
-                        Time.timeScale = 0.0f;
+                        r.pushState(new RobotStateSleep(2.0f)); // allow other robots to move out of the way
                     }
                 }
             }
