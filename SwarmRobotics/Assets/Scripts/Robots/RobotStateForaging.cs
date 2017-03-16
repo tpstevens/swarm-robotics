@@ -23,13 +23,9 @@ namespace Robots
         private bool waiting;
         private Robot robot;
         private Vector2 result;
-        private bool gotLocation;
         private Vector2 resultRH;
-        private bool gotRHLocation;
         private GameObject resource;
         private Vector3 resultBase;
-        private bool gotBaseLocation;
-        private bool noMoreResources;
         private Queue<string> handledMessage;
         private Queue<Vector2> waitQueue;
 
@@ -98,7 +94,6 @@ namespace Robots
         public override void update(Robot r)
         {
             bool finished = false;
-            Vector2 currentPosition = new Vector2(r.body.transform.position.x, r.body.transform.position.z);
 
             ////////////////////////////////////////////////////////////////////////////////////////
             // Initialize variables if necessary when first enter state
@@ -107,7 +102,6 @@ namespace Robots
             {
                 initialized = true;
                 resume = true;
-                noMoreResources = false;
 
                 state = ForagingState.REQUEST_RESOURCE;
             }
@@ -195,14 +189,14 @@ namespace Robots
                                 string[] lines = msg.text.Split('\t');
                                 //parse the messgae sent back from the satellite
                                 //will be sent the location of the resource
-                                gotLocation = StringToVector2(lines[1], out result);
+                                StringToVector2(lines[1], out result);
                                 r.pushState(new RobotStateRetrieveResource(result));
                                 state = ForagingState.PICK_UP_RESOURCE;
                             }
                             else if (msg.text.StartsWith("go_to_base"))
                             {
                                 string[] lines = msg.text.Split('\t');
-                                gotBaseLocation = StringToVector3(lines[1], out resultBase);
+                                StringToVector3(lines[1], out resultBase);
                                 r.pushState(new RobotStateMove(resultBase));
                                 state = ForagingState.FINISHED;
                             }
@@ -213,7 +207,7 @@ namespace Robots
                             if (msg.text.StartsWith("resource_home"))
                             {
                                 string[] lines = msg.text.Split('\t');
-                                gotRHLocation = StringToVector2(lines[1], out resultRH);
+                                StringToVector2(lines[1], out resultRH);
                             }
                             testMove = new Vector2(10f, 15f);
                             r.pushState(new RobotStateMove(testMove));
@@ -228,14 +222,14 @@ namespace Robots
                                 string[] lines = msg.text.Split('\t');
                                 //parse the messgae sent back from the satellite
                                 //will be sent the location of the resource
-                                gotLocation = StringToVector2(lines[1], out result);
+                                StringToVector2(lines[1], out result);
                                 r.pushState(new RobotStateRetrieveResource(result));
                                 state = ForagingState.PICK_UP_RESOURCE;
                             }
                             else if (msg.text.StartsWith("go_to_base"))
                             {
                                 string[] lines = msg.text.Split('\t');
-                                gotBaseLocation = StringToVector3(lines[1], out resultBase);
+                                StringToVector3(lines[1], out resultBase);
                                 r.pushState(new RobotStateMove(resultBase));
                                 state = ForagingState.FINISHED;
                             }

@@ -110,7 +110,6 @@ namespace CommSystem
         private Vector2 resourceDestenation()
         {
             currDest = resourcePlacements.Dequeue();
-            Vector2 test1 = currDest;
             oldDest = new Vector2(29.5f, 29.5f);
 
             if ((currDest.x - 2) < 20)
