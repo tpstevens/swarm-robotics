@@ -14,10 +14,12 @@ namespace Utilities
         private float commMsgDistanceLimit = 64.0f;
         private float commMsgSpeed = 10.0f;
         private float groundLength = 64.0f;
+        private bool logDisabled = false;
         private float spawnRadius = 5.0f; // applies to both square and circle spawn shapes
         private float robotRadarRange = 10.0f;
         private int numRobots = 1;
         private Rect resourceHomeRect = new Rect(new Vector2(20, 20), new Vector2(10, 10));
+        private bool scatterResources = true;
         private Vector2 spawnCenter = Vector2.zero;
 
         public bool CommShowInUnityConsole
@@ -42,6 +44,12 @@ namespace Utilities
         {
             get { return commMsgSpeed; }
             set { if (value > 0f) { commMsgSpeed = value; } }
+        }
+
+        public bool LogDisabled
+        {
+            get { return logDisabled; }
+            set { logDisabled = value; }
         }
 
         /// <summary>
@@ -75,6 +83,12 @@ namespace Utilities
         {
             get { return resourceHomeRect; }
         }
+
+        public bool ScatterResources
+        {
+            get { return scatterResources; }
+        }
+
 
         /// <summary>
         /// The center of the spawn area.
@@ -143,6 +157,11 @@ namespace Utilities
                                     if (!extractBool(sValue, ref commShowMsgIndicators))
                                         Log.w(LogTag.CONFIG, "Invalid Comm msg indicator state " + sValue);
                                 }
+                                else if (sKey == "logdisabled")
+                                {
+                                    if (!extractBool(sValue, ref logDisabled))
+                                        Log.w(LogTag.CONFIG, "Invalid logDisabled " + sValue);
+                                }
                                 else if (sKey == "groundlength")
                                 {
                                     Log.w(LogTag.CONFIG, "Ignoring ground length from config (" + sValue + ") because of NavMesh");
@@ -172,7 +191,12 @@ namespace Utilities
                                 else if (sKey == "spawncenter")
                                 {
                                     if (!extractVector2(sValue, ref spawnCenter))
-                                         Log.w(LogTag.CONFIG, "Invalid spawn center: " + sValue);
+                                        Log.w(LogTag.CONFIG, "Invalid spawn center: " + sValue);
+                                }
+                                else if (sKey == "scatterresources")
+                                {
+                                    if (!extractBool(sValue, ref scatterResources))
+                                        Log.w(LogTag.CONFIG, "Invalid scatterResources: " + sValue);
                                 }
                                 else if (sKey == "spawnradius")
                                 {

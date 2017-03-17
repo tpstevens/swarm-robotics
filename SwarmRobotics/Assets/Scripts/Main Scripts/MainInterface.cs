@@ -33,6 +33,12 @@ public interface MainInterface
     bool getResourcePositions(out List<Vector2> resourcePositions);
 
     /// <summary>
+    /// Get a list of 2D resource positions (only resources in resource cache).
+    /// </summary>
+    /// <returns>Whether the positions were successfully retrieved.</returns>
+    bool getResourcePositionsInCache(out List<Vector2> resourcePositions);
+
+    /// <summary>
     /// Get the position of the robot with the given ID.
     /// </summary>
     /// <param name="robotId">The robot ID.</param>
@@ -59,4 +65,6 @@ public interface MainInterface
     /// </summary>
     /// <param name="cmd">The command.</param>
     void queueConsoleCommand(string cmd);
+
+    List<Vector2> refillResourceCache();
 }

@@ -75,6 +75,33 @@ public class MainForaging : MonoBehaviour, MainInterface
     }
 
     /// <summary>
+    /// Get a list of 2D resource positions (only resources in resource cache).
+    /// </summary>
+    /// <returns>Whether the positions were successfully retrieved.</returns>
+    public bool getResourcePositionsInCache(out List<Vector2> resourcePositions)
+    {
+        if (resourceFactory == null)
+        {
+            resourcePositions = new List<Vector2>();
+            return false;
+        }
+        else
+        {
+            List<Vector2> allResourcePositions = resourceFactory.getResourcePositions();
+            resourcePositions = new List<Vector2>();
+
+            for (int i = 0; i < allResourcePositions.Count; ++i)
+            {
+                Vector2 v = allResourcePositions[i];
+                if (currentConfig.ResourceHomeRect.Contains(v))
+                    resourcePositions.Add(v);
+            }
+
+            return true;
+        }
+    }
+
+    /// <summary>
     /// Get the position of the robot with the given ID.
     /// </summary>
     /// <param name="robotId">The robot ID.</param>
@@ -148,6 +175,12 @@ public class MainForaging : MonoBehaviour, MainInterface
     public void queueConsoleCommand(string cmd)
     {
         queuedConsoleCommands.Enqueue(cmd);
+    }
+
+    public List<Vector2> refillResourceCache()
+    {
+        Log.a(LogTag.MAIN, "MainForaging does not yet implement refillResourceCache");
+        return new List<Vector2>();
     }
 
     /// <summary>

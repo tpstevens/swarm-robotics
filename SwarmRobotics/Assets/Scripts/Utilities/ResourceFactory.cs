@@ -124,11 +124,14 @@ public class ResourceFactory {
     {
         List<Vector2> positions = new List<Vector2>();
 
-        Vector2 temp;
+        if (resources.Count == 0)
+        {
+            Log.a("ResourceFactory", "no resources found");
+        }
+
         foreach (GameObject r in resources)
         {
-            temp = new Vector2(r.transform.position.x, r.transform.position.z);
-            positions.Add(temp);
+            positions.Add(new Vector2(r.transform.position.x, r.transform.position.z));
         }
 
         return positions;
@@ -143,7 +146,7 @@ public class ResourceFactory {
     /// <param name="resourceColor">The resource color.</param>
     /// <param name="parent">The parent transform of the new resource (defaults to Resource Header).</param>
     /// <returns>The instantiated resource.</returns>
-    private GameObject createResource(uint id, Vector2 position, float sideLength, Color color, Transform parent = null)
+    public GameObject createResource(uint id, Vector2 position, float sideLength, Color color, Transform parent = null)
     {
         GameObject resource = GameObject.CreatePrimitive(PrimitiveType.Cube);
         resource.transform.name = "Resource " + id;
@@ -175,7 +178,7 @@ public class ResourceFactory {
     /// <param name="material">The resource material.</param>
     /// <param name="parent">The parent transform of the new resource (defaults to Resource Header).</param>
     /// <returns>The instantiated resource.</returns>
-    private GameObject createResource(uint id, Vector2 position, float sideLength, Material material, Transform parent = null)
+    public GameObject createResource(uint id, Vector2 position, float sideLength, Material material, Transform parent = null)
     {
         GameObject resource = GameObject.CreatePrimitive(PrimitiveType.Cube);
         resource.transform.name = "Resource " + id;

@@ -46,17 +46,25 @@ namespace Robots
                 initialRotation = r.body.transform.rotation;
 
                 Vector3 target = new Vector3(targetPosition.x, r.body.transform.position.y, targetPosition.y);
-                targetRotation = Quaternion.LookRotation(target - r.body.transform.position, Vector3.up);
 
-                float angle = Quaternion.Angle(initialRotation, targetRotation);
+                if (target - r.body.transform.position != Vector3.zero)
+                {
+                    targetRotation = Quaternion.LookRotation(target - r.body.transform.position, Vector3.up);
 
-                while (angle < 0)
-                    angle += 360;
+                    float angle = Quaternion.Angle(initialRotation, targetRotation);
 
-                if (angle > 180)
-                    angle = 360 - 180;
+                    while (angle < 0)
+                        angle += 360;
 
-                timeToTurn = angle / angularSpeed;
+                    if (angle > 180)
+                        angle = 360 - 180;
+
+                    timeToTurn = angle / angularSpeed;
+                }
+                else
+                {
+                    timeTaken = timeToTurn;
+                }
             }
 
             ////////////////////////////////////////////////////////////////////////////////////////

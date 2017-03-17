@@ -13,6 +13,7 @@ namespace CommSystem
 
         private MainInterface mainScript;
         private Queue<CommMessage> unhandledMessages;
+        private SatelliteStateBuild buildState = null;
         private SatelliteStateConstruction constructionState = null;
         private SatelliteStateForaging foragingState = null;
 
@@ -53,15 +54,27 @@ namespace CommSystem
             unhandledMessages.Enqueue(msg);
         }
 
+        public void startBuild(string args)
+        {
+            if (buildState == null && constructionState == null)
+            {
+                buildState = new SatelliteStateBuild(this, mainScript, args);
+            }
+            else
+            {
+                Log.e(LogTag.SATELLITE, "Satellite already in build/construction state.");
+            }
+        }
+
         public void startConstruction()
         {
-            if (constructionState == null)
+            if (buildState == null && constructionState == null)
             {
                 constructionState = new SatelliteStateConstruction(this, mainScript);
             }
             else
             {
-                Log.e(LogTag.SATELLITE, "Satellite already in construction state.");
+                Log.e(LogTag.SATELLITE, "Satellite already in build/construction state.");
             }
         }
 
@@ -83,6 +96,11 @@ namespace CommSystem
             {
                 CommMessage msg = unhandledMessages.Dequeue();
 
+                if (msg.text.StartsWith("build"))
+                {
+                    if (buildState != null)
+                        buildState.handleMessage(msg);
+                }
                 if (msg.text.StartsWith("construction"))
                 {
                     if (constructionState != null)

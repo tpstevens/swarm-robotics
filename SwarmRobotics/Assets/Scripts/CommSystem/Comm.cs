@@ -325,7 +325,7 @@ namespace CommSystem
                 string recipient = (receiverId == SATELLITE) ? "Satellite" : ("Robot " + receiverId);
 
                 Log.d(LogTag.COMM, 
-                      "Delivering " + type + " message " + messageId + " to " + recipient,
+                      "Delivering " + type + " message " + messageId + " to " + recipient + "\n" + msg.text,
                       showInUnityConsole);
             }
             else

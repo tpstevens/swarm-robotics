@@ -52,7 +52,11 @@ namespace Robots
                 CommMessage msg = r.unhandledMessages.Dequeue();
                 if (msg.senderId == Comm.SATELLITE)
                 {
-                    if (msg.text.StartsWith("construction/start"))
+                    if (msg.text.StartsWith("build/start"))
+                    {
+                        r.pushState(new RobotStateBuildSatellite(r, msg));
+                    }
+                    else if (msg.text.StartsWith("construction/start"))
                     {
                         r.pushState(new RobotStateConstructionSatellite(r, msg));
                     }

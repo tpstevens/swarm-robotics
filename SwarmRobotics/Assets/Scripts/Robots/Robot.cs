@@ -11,7 +11,7 @@ namespace Robots
     public class Robot
     {
         public readonly float OBJECT_DETECT_DISTANCE = 1f;
-        public readonly float VELOCITY = 3.0f;
+        public readonly float VELOCITY = 4.0f;
         
         // TODO: does exposing these break encapsulation?
         public GameObject body;

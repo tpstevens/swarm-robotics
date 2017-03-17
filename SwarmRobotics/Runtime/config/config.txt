@@ -1,11 +1,15 @@
 # Comm Parameters
-msgSpeed           = 100.0
-msgDistanceLimit   = 128.0
+msgSpeed               = 100.0
+msgDistanceLimit       = 128.0
 commShowInUnityConsole = true
 commShowMsgIndicator   = true
 
 # Ground Parameters
 groundLength = 25.0
+scatterResources = false
+
+# Log Parameters
+logDisabled = false
 
 # Robot Sensors
 radarRange = 25.0

@@ -26,6 +26,8 @@ public class Main : MonoBehaviour, MainInterface
     private ResourceFactory resourceFactory;
     private Robot[] robots;
     private Satellite Satellite;
+    private uint nextPatchId = 0;
+    private uint nextResourceId = 0;
 
     [System.Serializable]
     public class Cameras
@@ -94,6 +96,40 @@ public class Main : MonoBehaviour, MainInterface
         else
         {
             resourcePositions = resourceFactory.getResourcePositions();
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// Get a list of 2D resource positions (only resources in resource cache).
+    /// </summary>
+    /// <returns>Whether the positions were successfully retrieved.</returns>
+    public bool getResourcePositionsInCache(out List<Vector2> resourcePositions)
+    {
+        if (resourceFactory == null)
+        {
+            resourcePositions = new List<Vector2>();
+            return false;
+        }
+        else
+        {
+            List<Vector2> allResourcePositions = resourceFactory.getResourcePositions();
+            resourcePositions = new List<Vector2>();
+
+            if (allResourcePositions.Count == 0)
+            {
+                Log.e(LogTag.MAIN, "no resources");
+            }
+
+            for (int i = 0; i < allResourcePositions.Count; ++i)
+            {
+                Vector2 v = allResourcePositions[i];
+                if (currentConfig.ResourceHomeRect.Contains(v))
+                    resourcePositions.Add(v);
+                else
+                    Log.w(LogTag.MAIN, "Resource " + v + " is not in resource cache");
+            }
+
             return true;
         }
     }
@@ -174,12 +210,26 @@ public class Main : MonoBehaviour, MainInterface
         queuedConsoleCommands.Enqueue(cmd);
     }
 
+    public List<Vector2> refillResourceCache()
+    {
+        nextResourceId = resourceFactory.createResourcePatch(nextPatchId++, 25, nextResourceId, new Vector2(25, 25), 4, 1, sceneMaterials.resource);
+        List<Vector2> cachePositions;
+
+        getResourcePositionsInCache(out cachePositions);
+
+        return cachePositions;
+    }
+
     /// <summary>
     /// Implementation of MonoBehaviour.Start(). Reads the argument files, create the environment, 
     /// place robots, and pause the simulation. 
     /// </summary>
     void Start()
     {
+        currentConfig = getConfig(); // must be first thing
+        Log.w(LogTag.MAIN, "Disabling log.");
+        Log.disableLog(currentConfig.LogDisabled);
+
         Log.w(LogTag.MAIN, "Loading scene " + SceneManager.GetActiveScene().name);
 
         // instantiate user interface
@@ -189,11 +239,8 @@ public class Main : MonoBehaviour, MainInterface
         // initialize random number generator
         Random.InitState(System.DateTime.Now.Millisecond);
 
-        // reads args from file, creates default if necessary
-        Args args = new Args();
-
         // create environment (ground and obstacles) and place robots
-        initialize(args.configFileName);
+        initialize();
 
         // pause game
         ApplicationManager.togglePause();
@@ -341,24 +388,27 @@ public class Main : MonoBehaviour, MainInterface
 
             Satellite = new Satellite(satelliteBody, this);
 
-//            // Place resources
-//            resourceFactory = new ResourceFactory();
-//            if (sceneMaterials.resource != null)
-//                resourceFactory.createResourcePatch(0, 25, 0, new Vector2(25, 25), 4, 1, sceneMaterials.resource);
-//            else
-//                resourceFactory.createResourcePatch(0, 25, 0, new Vector2(25, 25), 4, 1, Color.blue);
-
             // Place resources
             resourceFactory = new ResourceFactory();
-            resourceFactory.createResourcePatch(0, 4, 0, new Vector2(-20, -20), 1f, 1, sceneMaterials.resource, sceneMaterials.resourcePatch);
-            resourceFactory.createResourcePatch(1, 4, 4, new Vector2(-15, 10), 1f, 1, sceneMaterials.resource, sceneMaterials.resourcePatch);
-            resourceFactory.createResourcePatch(2, 4, 8, new Vector2(26, -14), 1f, 1, sceneMaterials.resource, sceneMaterials.resourcePatch);
-            resourceFactory.createResourcePatch(3, 4, 12, new Vector2(18, 8), 1f, 1, sceneMaterials.resource, sceneMaterials.resourcePatch);
-            resourceFactory.createResourcePatch(4, 4, 16, new Vector2(13, -18), 1f, 1, sceneMaterials.resource, sceneMaterials.resourcePatch);
-            resourceFactory.createResourcePatch(5, 1, 20, new Vector2(6, -4), 0.5f, 1, sceneMaterials.resource, sceneMaterials.resourcePatch);
-            resourceFactory.createResourcePatch(6, 1, 21, new Vector2(-24, -3), 0.5f, 1, sceneMaterials.resource, sceneMaterials.resourcePatch);
-            resourceFactory.createResourcePatch(7, 1, 22, new Vector2(-7, -11), 0.5f, 1, sceneMaterials.resource, sceneMaterials.resourcePatch);
-            resourceFactory.createResourcePatch(8, 1, 23, new Vector2(8, 23), 0.5f, 1, sceneMaterials.resource, sceneMaterials.resourcePatch);
+            if (currentConfig.ScatterResources)
+            {
+                nextResourceId = resourceFactory.createResourcePatch(nextPatchId++, 4, 0, new Vector2(-20, -20), 1f, 1, sceneMaterials.resource, sceneMaterials.resourcePatch);
+                nextResourceId = resourceFactory.createResourcePatch(nextPatchId++, 4, 4, new Vector2(-15, 10), 1f, 1, sceneMaterials.resource, sceneMaterials.resourcePatch);
+                nextResourceId = resourceFactory.createResourcePatch(nextPatchId++, 4, 8, new Vector2(26, -14), 1f, 1, sceneMaterials.resource, sceneMaterials.resourcePatch);
+                nextResourceId = resourceFactory.createResourcePatch(nextPatchId++, 4, 12, new Vector2(18, 8), 1f, 1, sceneMaterials.resource, sceneMaterials.resourcePatch);
+                nextResourceId = resourceFactory.createResourcePatch(nextPatchId++, 4, 16, new Vector2(13, -18), 1f, 1, sceneMaterials.resource, sceneMaterials.resourcePatch);
+                nextResourceId = resourceFactory.createResourcePatch(nextPatchId++, 1, 20, new Vector2(6, -4), 0.5f, 1, sceneMaterials.resource, sceneMaterials.resourcePatch);
+                nextResourceId = resourceFactory.createResourcePatch(nextPatchId++, 1, 21, new Vector2(-24, -3), 0.5f, 1, sceneMaterials.resource, sceneMaterials.resourcePatch);
+                nextResourceId = resourceFactory.createResourcePatch(nextPatchId++, 1, 22, new Vector2(-7, -11), 0.5f, 1, sceneMaterials.resource, sceneMaterials.resourcePatch);
+                nextResourceId = resourceFactory.createResourcePatch(nextPatchId++, 1, 23, new Vector2(8, 23), 0.5f, 1, sceneMaterials.resource, sceneMaterials.resourcePatch);
+            }
+            else
+            {
+                if (sceneMaterials.resource != null)
+                    nextResourceId = resourceFactory.createResourcePatch(nextPatchId++, 25, 0, new Vector2(25, 25), 4, 1, sceneMaterials.resource);
+                else
+                    nextResourceId = resourceFactory.createResourcePatch(nextPatchId++, 25, 0, new Vector2(25, 25), 4, 1, Color.blue);
+            }
 
             WorldspaceUIFactory.createQuad("Resource Home", config.ResourceHomeRect, sceneMaterials.resourceHome);
         }
@@ -366,20 +416,27 @@ public class Main : MonoBehaviour, MainInterface
         return result;
     }
 
+    private Config getConfig()
+    {
+        // reads args from file, creates default if necessary
+        Args args = new Args();
+
+        return new Config(args.configFileName); // reads the config file and sets parameters
+    }
+
     /// <summary>
     /// Generate the environment and initialize the robots.
     /// </summary>
     /// <param name="configFile">The name of the config file.</param>
     /// <returns>Whether initialization completed successfully.</returns>
-    private bool initialize(string configFile)
+    private bool initialize()
     {
         bool result = true;
-        currentConfig = new Config(configFile); // reads the config file and sets parameters
 
         if (!generateEnvironment(currentConfig) || !placeRobots(currentConfig))
         {
             result = false;
-            Log.a(LogTag.MAIN, "Failed to initialize scene using " + configFile);
+            Log.a(LogTag.MAIN, "Failed to initialize scene");
         }
         else
         {
@@ -473,7 +530,17 @@ public class Main : MonoBehaviour, MainInterface
         {
             string cmd = queuedConsoleCommands.Dequeue().ToLower();
 
-            if (cmd == "construction")
+            if (cmd.StartsWith("build"))
+            {
+                string args = cmd.Trim();
+                if (args.Length > 1 && args.IndexOf(' ') > 0)
+                {
+                    Satellite.startBuild(args.Substring(args.IndexOf(' ') + 1));
+                    console.toggle();
+                    ApplicationManager.unpause();
+                }
+            }
+            else if (cmd == "construction")
             {
                 Satellite.startConstruction();
                 console.toggle();

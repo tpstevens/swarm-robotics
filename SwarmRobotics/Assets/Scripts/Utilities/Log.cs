@@ -89,6 +89,7 @@ namespace Utilities
         private static volatile Log log;
         private static object mutex = new object();
 
+        private bool logDisabled = false;
         private Dictionary<string, int> tagStringToInt;
         private Dictionary<int, string> tagIntToString;
         private int longestTagLength = 0;
@@ -163,6 +164,12 @@ namespace Utilities
         public static void e(string tag, string message, bool showInConsole = true)
         {
             write(LogLevel.Error, tag, message, showInConsole);
+        }
+
+        public static void disableLog(bool disabled)
+        {
+            Log log = Log.Instance();
+            log.logDisabled = disabled;
         }
 
         /// <summary>
@@ -247,27 +254,31 @@ namespace Utilities
         public static void write(LogLevel level, string tag, string message, bool showInConsole)
         {
             Log log = Instance();
-            int tagId;
 
-            message.Trim();
-            tag.Trim();
-
-            if (!log.tagStringToInt.TryGetValue(tag, out tagId))
+            if (!log.logDisabled)
             {
-                tagId = log.nextTagId++;
+                int tagId;
 
-                if (tag.Length > log.longestTagLength)
-                    log.longestTagLength = tag.Length;
-                
-                log.tagStringToInt.Add(tag, tagId);
-                log.tagIntToString.Add(tagId, tag);
-            }
+                message.Trim();
+                tag.Trim();
 
-            log.messages.Add(new LogMessage(level, tagId, message));
+                if (!log.tagStringToInt.TryGetValue(tag, out tagId))
+                {
+                    tagId = log.nextTagId++;
 
-            if (showInConsole)
-            {
-                switch (level) {
+                    if (tag.Length > log.longestTagLength)
+                        log.longestTagLength = tag.Length;
+
+                    log.tagStringToInt.Add(tag, tagId);
+                    log.tagIntToString.Add(tagId, tag);
+                }
+
+                log.messages.Add(new LogMessage(level, tagId, message));
+
+                if (showInConsole)
+                {
+                    switch (level)
+                    {
                     case LogLevel.Verbose:
                         Debug.Log(tag + " | " + message);
                         break;
@@ -283,6 +294,7 @@ namespace Utilities
                     case LogLevel.Assert:
                         Debug.LogAssertion(tag + " | " + message);
                         break;
+                    }
                 }
             }
         }
@@ -306,13 +318,20 @@ namespace Utilities
 
                 Log.d("LOG", "Writing log to " + filePath);
 
-                foreach (LogMessage l in log.messages)
+                if (!log.logDisabled)
                 {
-                    string tag;
-                    log.tagIntToString.TryGetValue(l.tag, out tag);
-                    if (spacer.Length != log.longestTagLength - tag.Length)
-                        spacer = new string(' ', log.longestTagLength - tag.Length);
-                    File.AppendAllText(filePath, l.ToFormattedString(tag + spacer) + "\n");
+                    foreach (LogMessage l in log.messages)
+                    {
+                        string tag;
+                        log.tagIntToString.TryGetValue(l.tag, out tag);
+                        if (spacer.Length != log.longestTagLength - tag.Length)
+                            spacer = new string(' ', log.longestTagLength - tag.Length);
+                        File.AppendAllText(filePath, l.ToFormattedString(tag + spacer) + "\n");
+                    }
+                }
+                else
+                {
+                    File.AppendAllText(filePath, "Log disabled.\n");
                 }
             }
             else

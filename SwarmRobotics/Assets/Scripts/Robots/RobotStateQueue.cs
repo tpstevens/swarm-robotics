@@ -10,15 +10,17 @@ namespace Robots
     public class RobotStateQueue : RobotState
     {
         private bool enteredQueue;
+        private float tolerance;
         private float robotSpacing;
         private Queue<Vector2> queueWaypoints;
         private Vector2 lastWaypoint; // used to determine direction the robot will travel
         private Vector2 nextWaypoint; // used to determine which spot the robot will occupy next
 
-        public RobotStateQueue(Queue<Vector2> queueWaypoints, float robotSpacing)
+        public RobotStateQueue(Queue<Vector2> queueWaypoints, float robotSpacing, float tolerance = 0.0f)
         {
             this.queueWaypoints = queueWaypoints;
             this.robotSpacing = robotSpacing;
+            this.tolerance = tolerance;
 
             enteredQueue = false;
         }
@@ -112,7 +114,7 @@ namespace Robots
 
                         if (moveToDestination)
                         {
-                            r.pushState(new RobotStateMove(nextDestination));
+                            r.pushState(new RobotStateMove(nextDestination, tolerance));
                         }
                         else
                         {

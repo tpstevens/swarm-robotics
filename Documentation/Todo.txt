@@ -30,3 +30,11 @@ make it so robots don't have to stop when checking for running into next guy
 add visual indicators for queues, waypoints, etc
 
 add visual indicator for time speedup and slowdown
+
+add Comm.sendMessage(CommMessage msg) for queueing purposes
+
+try 8x timescale speedup with smarter pathfinding (set calculation fidelity to "High" or whatever)
+
+add visual indicators for errors (hook into Log._ ?) as well as notifications to the user
+
+add filtering to log based on LogLevel
