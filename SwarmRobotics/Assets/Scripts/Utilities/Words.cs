@@ -82,6 +82,9 @@ namespace Utilities
                 Debug.Log(lines[i]);
             }
 
+            int numLines = (lines.Count < MAX_LINE_LENGTH) ? lines.Count : MAX_LINE_LENGTH;
+            float verticalOffset = 0.5f * (MAX_LINE_LENGTH - numLines);
+
             for (int i = 0; i < lines.Count && i < MAX_LINE_LENGTH; ++i)
             {
                 float pixelWidth = lines[i].Length * 5 + (lines[i].Length - 1);
@@ -90,7 +93,9 @@ namespace Utilities
                     return new List<Vector2>();
                 }
 
-                Vector2 startPosition = new Vector2(pixelWidth / -2.0f + 0.5f, -8 * (i) + 6);
+                float offsetX = pixelWidth / -2.0f + 0.5f;
+                float offsetY = -8 * (i + verticalOffset) + 6;
+                Vector2 startPosition = new Vector2(offsetX, offsetY);
                 for (int layer = 0; layer < 7; ++layer)
                 {
                     for (int c = 0; c < lines[i].Length; ++c)
