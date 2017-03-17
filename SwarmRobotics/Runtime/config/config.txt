@@ -6,7 +6,7 @@ commShowMsgIndicator   = true
 
 # Ground Parameters
 groundLength = 25.0
-scatterResources = false
+scatterResources = true
 
 # Log Parameters
 logDisabled = false
